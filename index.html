@@ -3,999 +3,750 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#03041a">
 <title>Shootex Nachtarena</title>
 <meta name="description" content="Outdoor-Lasertag in Staig bei Ulm. 1.400 m² Hof-Arena, 6–24 Spieler, Open Night für Einzelspieler.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=Chivo+Mono:wght@400;500&family=Hanken+Grotesk:wght@400;500;600;700&family=Tilt+Neon&display=swap">
-<style>
-/* Layout: full-bleed nocturnal arena hero (canvas), then a single 1180px column of
-   HUD-framed sections. Deliberately single-theme: the arena is always at night. */
-:root{
-  --night:#0a0818;        /* ground */
-  --night-2:#120e29;      /* raised surface */
-  --line:#2a2350;         /* hairlines */
-  --ink:#ece9ff;          /* text */
-  --mute:#9a94bd;         /* secondary text */
-  --cyan:#3ff3ff;         /* team cyan */
-  --magenta:#ff3dbb;      /* team magenta */
-  --amber:#ffb547;        /* sodium light: Open Night */
-  --f-neon:'Tilt Neon','Hanken Grotesk',system-ui,sans-serif;
-  --f-display:'Big Shoulders Display','Arial Narrow',Impact,sans-serif;
-  --f-body:'Hanken Grotesk',system-ui,-apple-system,'Segoe UI',sans-serif;
-  --f-mono:'Chivo Mono',ui-monospace,'SFMono-Regular',Menlo,monospace;
-  --wrap:1180px;
-  --gutter:clamp(16px,4vw,40px);
-  color-scheme:dark;
-}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--night);color:var(--ink);font:400 17px/1.6 var(--f-body);overflow-x:hidden}
-img{max-width:100%}
-a{color:inherit}
-:focus-visible{outline:2px solid var(--cyan);outline-offset:3px;border-radius:2px}
-[hidden]{display:none!important}
-.wrap{max-width:var(--wrap);margin-inline:auto;padding-inline:var(--gutter)}
-.mono{font-family:var(--f-mono);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase}
-.tnum{font-variant-numeric:tabular-nums}
-h1,h2,h3{text-wrap:balance;margin:0}
-p{margin:0}
-
-/* ---------- Nav ---------- */
-.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:color-mix(in srgb,var(--night) 78%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid color-mix(in srgb,var(--line) 70%,transparent)}
-.nav .wrap{display:flex;align-items:center;gap:24px;min-height:62px}
-.brand{font:400 1.55rem/1 var(--f-neon);letter-spacing:.06em;text-decoration:none;color:#fff;text-shadow:0 0 6px var(--magenta),0 0 18px color-mix(in srgb,var(--magenta) 70%,transparent)}
-.nav ul{display:flex;gap:22px;list-style:none;margin:0 0 0 auto;padding:0}
-.nav ul a{text-decoration:none;color:var(--mute);font:500 .78rem/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;transition:color .2s}
-.nav ul a:hover{color:var(--ink)}
-.btn{display:inline-flex;align-items:center;gap:.6em;font:600 .95rem/1 var(--f-body);text-decoration:none;padding:.95em 1.35em;border-radius:2px;border:1px solid transparent;cursor:pointer;transition:transform .15s,box-shadow .2s,background .2s,color .2s}
-.btn:active{transform:translateY(1px)}
-.btn-cyan{background:var(--cyan);color:#041318;box-shadow:0 0 0 1px var(--cyan),0 0 24px color-mix(in srgb,var(--cyan) 45%,transparent)}
-.btn-cyan:hover{box-shadow:0 0 0 1px var(--cyan),0 0 40px color-mix(in srgb,var(--cyan) 70%,transparent)}
-.btn-ghost{background:transparent;color:var(--ink);border-color:color-mix(in srgb,var(--amber) 65%,transparent)}
-.btn-ghost:hover{border-color:var(--amber);box-shadow:0 0 22px color-mix(in srgb,var(--amber) 35%,transparent);color:#fff}
-.nav .btn{padding:.7em 1em;font-size:.85rem}
-@media (max-width:900px){.nav ul{display:none}.nav .btn{margin-left:auto}}
-
-/* ---------- Hero ---------- */
-.hero{position:relative;height:clamp(600px,88vh,820px);overflow:hidden;isolation:isolate;border-bottom:1px solid var(--line)}
-#arena{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:-1}
-.hero .wrap{height:100%;display:flex;flex-direction:column;justify-content:flex-start;padding-block:clamp(40px,8vh,88px) 28px}
-.eyebrow{color:var(--cyan);display:flex;align-items:center;gap:.8em}
-.eyebrow::before{content:"";width:28px;height:1px;background:currentColor;box-shadow:0 0 8px currentColor}
-.wordmark{font:400 clamp(3.4rem,13vw,9.5rem)/.9 var(--f-neon);letter-spacing:.04em;margin:.18em 0 .08em -.04em;color:#fff6fd;
-  text-shadow:0 0 4px #fff,0 0 12px var(--magenta),0 0 34px var(--magenta),0 0 80px color-mix(in srgb,var(--magenta) 60%,transparent);
-  animation:ignite 1.6s steps(1,end) both}
-.wordmark .x{color:#f1feff;text-shadow:0 0 4px #fff,0 0 12px var(--cyan),0 0 34px var(--cyan),0 0 80px color-mix(in srgb,var(--cyan) 60%,transparent);animation:buzz 7s 2.2s infinite steps(1,end)}
-@keyframes ignite{0%{opacity:.15}8%{opacity:.9}12%{opacity:.2}20%{opacity:1}24%{opacity:.35}34%{opacity:1}100%{opacity:1}}
-@keyframes buzz{0%,100%{opacity:1}91%{opacity:1}92%{opacity:.35}93%{opacity:1}95%{opacity:.6}96%{opacity:1}}
-.hero h1{font:800 clamp(2rem,5.2vw,3.8rem)/.98 var(--f-display);text-transform:uppercase;letter-spacing:.01em;max-width:22ch}
-.hero h1 span{display:block;color:var(--cyan);text-shadow:0 0 22px color-mix(in srgb,var(--cyan) 45%,transparent)}
-.hero .lede{max-width:52ch;margin-top:1.1rem;color:#d6d1f2;font-size:clamp(1rem,1.6vw,1.12rem)}
-.hero .ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:1.6rem}
-.hud{position:absolute;inset:0;pointer-events:none;z-index:1}
-.hud .corner{position:absolute;width:26px;height:26px;border-color:color-mix(in srgb,var(--ink) 35%,transparent);border-style:solid;border-width:0}
-.hud .tl{top:14px;left:14px;border-top-width:1px;border-left-width:1px}
-.hud .tr{top:14px;right:14px;border-top-width:1px;border-right-width:1px}
-.hud .bl{bottom:14px;left:14px;border-bottom-width:1px;border-left-width:1px}
-.hud .br{bottom:14px;right:14px;border-bottom-width:1px;border-right-width:1px}
-.scoreboard{position:absolute;right:clamp(16px,4vw,40px);top:clamp(40px,8vh,88px);display:grid;gap:6px;text-align:right;color:var(--mute)}
-.score{display:flex;align-items:baseline;justify-content:flex-end;gap:14px;font:800 2.4rem/1 var(--f-display)}
-.score .c{color:var(--cyan);text-shadow:0 0 14px color-mix(in srgb,var(--cyan) 60%,transparent)}
-.score .m{color:var(--magenta);text-shadow:0 0 14px color-mix(in srgb,var(--magenta) 60%,transparent)}
-.score .sep{color:var(--mute);font-weight:600}
-.round{color:var(--ink)}
-.coords{position:absolute;left:clamp(16px,4vw,40px);bottom:22px;color:var(--mute)}
-@media (max-width:760px){.scoreboard{top:auto;bottom:22px;right:16px}.score{font-size:1.7rem}.coords{display:none}.scoreboard .mode-line{display:none}}
-
-.stats{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--line);background:var(--night-2)}
-.stats div{padding:22px var(--gutter);border-right:1px solid var(--line);display:grid;gap:4px}
-.stats div:last-child{border-right:0}
-.stats b{font:800 clamp(1.6rem,3vw,2.3rem)/1 var(--f-display);letter-spacing:.01em}
-.stats span{color:var(--mute)}
-@media (max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}.stats div:nth-child(2){border-right:0}.stats div:nth-child(-n+2){border-bottom:1px solid var(--line)}}
-
-/* ---------- Sections ---------- */
-section.block{padding-block:clamp(72px,11vw,128px)}
-.tag{color:var(--magenta);margin-bottom:1rem;display:block}
-.tag::before{content:"[ "}.tag::after{content:" ]"}
-.h2{font:800 clamp(2.2rem,5.6vw,4.4rem)/.95 var(--f-display);text-transform:uppercase;letter-spacing:.005em;max-width:18ch}
-.intro{max-width:60ch;color:#cfcaea;margin-top:1.2rem;font-size:1.08rem}
-.beam{height:1px;background:linear-gradient(90deg,transparent,var(--magenta) 30%,var(--cyan) 70%,transparent);opacity:.55;box-shadow:0 0 12px color-mix(in srgb,var(--magenta) 50%,transparent)}
-
-/* Arena */
-.zones{display:grid;grid-template-columns:1.35fr 1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);margin-top:3rem}
-.zone{background:var(--night);padding:28px;display:flex;flex-direction:column;gap:14px;min-width:0}
-.zone .k{color:var(--mute)}
-.zone h3{font:800 2rem/1 var(--f-display);text-transform:uppercase}
-.zone .big{font:900 clamp(3rem,6vw,4.6rem)/.9 var(--f-display);color:var(--cyan);text-shadow:0 0 26px color-mix(in srgb,var(--cyan) 40%,transparent)}
-.zone .big small{font-size:.42em;color:var(--ink);text-shadow:none;margin-left:.15em}
-.zone p{color:#cfcaea}
-.zone.main{background:radial-gradient(120% 90% at 0% 0%,color-mix(in srgb,var(--cyan) 9%,transparent),transparent 60%),var(--night)}
-@media (max-width:900px){.zones{grid-template-columns:1fr}}
-.tech{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(20px,4vw,48px);margin-top:3.5rem}
-.tech div{display:grid;gap:8px;border-top:1px solid var(--line);padding-top:18px}
-.tech b{font:700 1.1rem/1.3 var(--f-body)}
-.tech p{color:var(--mute);font-size:.98rem}
-@media (max-width:760px){.tech{grid-template-columns:1fr}}
-
-/* Modes */
-.modes{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:3rem}
-.mode{position:relative;border:1px solid var(--line);background:var(--night-2);padding:24px 22px 26px;display:flex;flex-direction:column;gap:12px;transition:border-color .25s,transform .25s,box-shadow .25s;min-width:0}
-.mode:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--c) 70%,transparent);box-shadow:0 18px 50px -24px var(--c)}
-.mode svg{width:44px;height:44px;stroke:var(--c);fill:none;stroke-width:1.6;filter:drop-shadow(0 0 6px var(--c))}
-.mode h3{font:800 1.65rem/1 var(--f-display);text-transform:uppercase}
-.mode p{color:#cfcaea;font-size:.98rem}
-.mode .meta{margin-top:auto;color:var(--mute)}
-@media (max-width:1000px){.modes{grid-template-columns:repeat(2,1fr)}}
-@media (max-width:560px){.modes{grid-template-columns:1fr}}
-
-/* Open Night */
-.open{position:relative;background:
-  radial-gradient(70% 60% at 85% 10%,color-mix(in srgb,var(--amber) 13%,transparent),transparent 70%),
-  linear-gradient(180deg,var(--night),#0d0a1d);border-block:1px solid var(--line)}
-.open .tag{color:var(--amber)}
-.open .h2 em{font-style:normal;color:var(--amber);text-shadow:0 0 26px color-mix(in srgb,var(--amber) 45%,transparent)}
-.open-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:clamp(32px,6vw,80px);margin-top:3rem;align-items:start}
-.steps{list-style:none;margin:0;padding:0;display:grid;gap:22px;counter-reset:s}
-.steps li{display:grid;grid-template-columns:44px 1fr;gap:14px;counter-increment:s}
-.steps li::before{content:counter(s,decimal-leading-zero);font:500 .8rem/1 var(--f-mono);color:var(--amber);border:1px solid color-mix(in srgb,var(--amber) 55%,transparent);height:32px;display:grid;place-items:center;letter-spacing:.06em}
-.steps b{display:block;font-weight:700;margin-bottom:2px}
-.steps p{color:var(--mute);font-size:.98rem}
-.lobby{margin-top:28px;border:1px dashed color-mix(in srgb,var(--amber) 50%,transparent);padding:20px 22px;display:grid;gap:6px}
-.lobby b{color:var(--amber)}
-.lobby p{color:#cfcaea;font-size:.98rem}
-.nights{display:grid;gap:12px}
-.nights-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;color:var(--mute);flex-wrap:wrap}
-.night{border:1px solid var(--line);background:color-mix(in srgb,var(--night-2) 85%,transparent);padding:18px 20px;display:grid;grid-template-columns:auto 1fr auto;gap:8px 18px;align-items:center}
-.night .d{font:800 1.9rem/1 var(--f-display);text-transform:uppercase;min-width:4.2ch}
-.night .d small{display:block;font:500 .7rem/1.4 var(--f-mono);letter-spacing:.12em;color:var(--mute)}
-.bar{position:relative;height:8px;background:#1d1838;border-radius:1px;overflow:visible}
-.bar i{position:absolute;inset:0 auto 0 0;background:var(--amber);box-shadow:0 0 12px color-mix(in srgb,var(--amber) 70%,transparent);transition:width .5s cubic-bezier(.2,.8,.2,1)}
-.bar .min{position:absolute;top:-5px;bottom:-5px;width:2px;background:var(--ink);opacity:.7}
-.night .status{grid-column:2;color:var(--mute)}
-.night .status.go{color:var(--amber)}
-.night button{grid-row:1/3;grid-column:3;background:transparent;color:var(--ink);border:1px solid color-mix(in srgb,var(--amber) 55%,transparent);font:600 .85rem/1 var(--f-body);padding:.8em 1em;cursor:pointer;border-radius:2px;transition:background .2s,color .2s}
-.night button:hover{background:var(--amber);color:#1a1000}
-.night button:disabled{opacity:.4;cursor:default;background:transparent;color:var(--mute)}
-.nights .note{color:var(--mute);font-size:.88rem}
-@media (max-width:900px){.open-grid{grid-template-columns:1fr}}
-@media (max-width:460px){.night{grid-template-columns:auto 1fr}.night button{grid-row:auto;grid-column:1/-1}.night .status{grid-column:1/-1}}
-
-/* Prices */
-.price-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,5vw,64px);margin-top:3rem;align-items:start}
-.tiers{display:grid;border:1px solid var(--line)}
-.tier{display:grid;grid-template-columns:1fr auto;gap:4px 16px;padding:22px 24px;border-bottom:1px solid var(--line)}
-.tier:last-child{border-bottom:0}
-.tier b{font:800 1.5rem/1.1 var(--f-display);text-transform:uppercase}
-.tier .p{font:800 2.2rem/1 var(--f-display);color:var(--cyan);grid-row:1/3;grid-column:2;align-self:center;text-align:right}
-.tier .p small{display:block;font:500 .7rem/1.4 var(--f-mono);letter-spacing:.1em;color:var(--mute)}
-.tier span{color:var(--mute);font-size:.95rem}
-.tier.amber .p{color:var(--amber)}
-.fine{margin-top:16px;color:var(--mute);font-size:.92rem;display:grid;gap:6px}
-.calc{border:1px solid var(--line);background:var(--night-2);padding:clamp(22px,3vw,32px);display:grid;gap:22px}
-.calc label{display:flex;justify-content:space-between;gap:12px;color:var(--mute)}
-.calc label output{color:var(--ink)}
-input[type=range]{width:100%;accent-color:var(--cyan);height:28px}
-.seg{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line)}
-.seg button{background:transparent;border:0;border-right:1px solid var(--line);color:var(--mute);padding:.85em .5em;font:500 .8rem/1 var(--f-mono);letter-spacing:.1em;cursor:pointer}
-.seg button:last-child{border-right:0}
-.seg button[aria-pressed=true]{background:color-mix(in srgb,var(--cyan) 14%,transparent);color:var(--cyan)}
-.check{display:flex!important;justify-content:flex-start!important;align-items:center;gap:10px;color:#cfcaea!important;cursor:pointer}
-.check input{accent-color:var(--cyan);width:18px;height:18px}
-.total{border-top:1px solid var(--line);padding-top:20px;display:grid;gap:6px}
-.total .sum{font:900 clamp(3rem,7vw,4.4rem)/.9 var(--f-display);color:#fff;text-shadow:0 0 30px color-mix(in srgb,var(--cyan) 35%,transparent)}
-.total .per{color:var(--mute)}
-.total .hint{color:var(--amber);font-size:.92rem}
-@media (max-width:900px){.price-grid{grid-template-columns:1fr}}
-
-/* Cup */
-.cup{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,5vw,64px);margin-top:3rem;align-items:start}
-.log{display:grid;border-left:1px solid var(--line)}
-.entry{position:relative;padding:4px 0 26px 26px;display:grid;gap:4px}
-.entry::before{content:"";position:absolute;left:-5px;top:9px;width:9px;height:9px;background:var(--magenta);box-shadow:0 0 12px var(--magenta)}
-.entry .when{color:var(--mute)}
-.entry b{font:800 1.5rem/1.1 var(--f-display);text-transform:uppercase}
-.entry p{color:#cfcaea;font-size:.98rem}
-.occasions{display:grid;gap:1px;background:var(--line);border:1px solid var(--line)}
-.occ{background:var(--night);padding:20px 22px;display:grid;gap:4px}
-.occ b{font:800 1.35rem/1.1 var(--f-display);text-transform:uppercase}
-.occ p{color:var(--mute);font-size:.95rem}
-@media (max-width:900px){.cup{grid-template-columns:1fr}}
-
-/* FAQ */
-.faq{margin-top:2.5rem;border-top:1px solid var(--line);max-width:860px}
-.faq details{border-bottom:1px solid var(--line)}
-.faq summary{list-style:none;cursor:pointer;padding:20px 40px 20px 0;position:relative;font:600 1.08rem/1.4 var(--f-body)}
-.faq summary::-webkit-details-marker{display:none}
-.faq summary::after{content:"+";position:absolute;right:6px;top:16px;font:400 1.6rem/1 var(--f-mono);color:var(--cyan);transition:transform .2s}
-.faq details[open] summary::after{transform:rotate(45deg)}
-.faq details p{padding:0 0 22px;color:#cfcaea;max-width:64ch}
-
-/* Booking */
-.book{background:radial-gradient(80% 70% at 10% 100%,color-mix(in srgb,var(--magenta) 12%,transparent),transparent 70%),var(--night);border-top:1px solid var(--line)}
-.book-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:clamp(28px,5vw,64px);margin-top:3rem;align-items:start}
-form{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.field{display:grid;gap:6px;min-width:0}
-.field.full{grid-column:1/-1}
-.field label{color:var(--mute)}
-.field input,.field select{width:100%;background:var(--night-2);border:1px solid var(--line);color:var(--ink);font:400 1rem/1.3 var(--f-body);padding:.85em .9em;border-radius:2px}
-.field input:focus,.field select:focus{border-color:var(--cyan);outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--cyan) 20%,transparent)}
-form .btn{grid-column:1/-1;justify-self:start}
-@media (max-width:560px){form{grid-template-columns:1fr}}
-.result{grid-column:1/-1;border:1px solid color-mix(in srgb,var(--cyan) 45%,transparent);padding:18px;display:grid;gap:12px;background:color-mix(in srgb,var(--cyan) 5%,transparent)}
-.result pre{margin:0;white-space:pre-wrap;font:400 .9rem/1.5 var(--f-mono);color:var(--ink)}
-.result .row{display:flex;flex-wrap:wrap;gap:10px}
-.small-btn{background:transparent;border:1px solid var(--line);color:var(--ink);font:500 .78rem/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;padding:.75em 1em;cursor:pointer;border-radius:2px;text-decoration:none}
-.small-btn:hover{border-color:var(--cyan);color:var(--cyan)}
-.contact{display:grid;gap:22px}
-.contact .item{display:grid;gap:4px;border-top:1px solid var(--line);padding-top:16px}
-.contact .item span{color:var(--mute)}
-.contact .item b{font:700 1.2rem/1.35 var(--f-body);user-select:all;overflow-wrap:anywhere}
-.contact .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
-
-footer{border-top:1px solid var(--line);padding-block:32px 40px;color:var(--mute)}
-footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-between;align-items:center}
-footer .brand{font-size:1.2rem}
-
-.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,24px);opacity:0;visibility:hidden;background:var(--night-2);border:1px solid var(--amber);color:var(--ink);padding:12px 18px;font:500 .9rem/1.4 var(--f-body);z-index:80;transition:transform .35s cubic-bezier(.2,.8,.2,1),opacity .25s,visibility .35s;max-width:calc(100vw - 32px);box-shadow:0 10px 40px -10px color-mix(in srgb,var(--amber) 50%,transparent)}
-.toast.show{transform:translate(-50%,0);opacity:1;visibility:visible}
-
-/* gentle reveal from a visible resting state */
-.rise{animation:rise .9s cubic-bezier(.2,.8,.2,1) both}
-.rise.d1{animation-delay:.15s}.rise.d2{animation-delay:.3s}.rise.d3{animation-delay:.45s}
-@keyframes rise{from{transform:translateY(14px)}to{transform:none}}
-
-@media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation:none!important;transition:none!important}
-  html{scroll-behavior:auto}
-}
-</style>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<nav class="nav" aria-label="Hauptnavigation">
-  <div class="wrap">
-    <a class="brand" href="#top">SHOOTEX</a>
-    <ul>
-      <li><a href="#arena-info">Arena</a></li>
-      <li><a href="#modi">Modi</a></li>
-      <li><a href="#open-night">Open Night</a></li>
-      <li><a href="#preise">Preise</a></li>
-      <li><a href="#cup">Cup</a></li>
-      <li><a href="#faq">FAQ</a></li>
-    </ul>
-    <a class="btn btn-cyan" href="#buchen">Slot anfragen</a>
-  </div>
-</nav>
+<!-- ================= HERO: illustrated night arena (pure SVG + canvas, no images) ================= -->
+<section class="stage" id="top" aria-label="Shootex Outdoor-Lasertag">
 
-<header class="hero" id="top">
-  <canvas id="arena" aria-hidden="true"></canvas>
-  <div class="hud" aria-hidden="true">
-    <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
-    <div class="scoreboard mono">
-      <div class="round"><span id="hud-round">Runde 01</span> · <span id="hud-time" class="tnum">10:00</span></div>
-      <div class="score tnum"><span class="c" id="hud-c">00</span><span class="sep">:</span><span class="m" id="hud-m">00</span></div>
-      <div class="mode-line" id="hud-mode">Modus: Herrschaft</div>
-    </div>
-    <div class="coords mono">48°18′ N · 9°59′ E · Staig / Ulm</div>
-  </div>
-  <div class="wrap">
-    <span class="eyebrow mono rise">Outdoor-Lasertag · Staig bei Ulm</span>
-    <div class="wordmark" role="img" aria-label="Shootex">SHOOTE<span class="x">X</span></div>
-    <h1 class="rise d1">Du siehst nur Lichter. <span>Und die sehen dich.</span></h1>
-    <p class="lede rise d2">1.400 m² Hof-Arena unter freiem Himmel. Infrarot statt Farbkugeln, jeder Treffer landet in Echtzeit auf deinem Sensor. Für Crews von 6 bis 24 Leuten. Oder du kommst allein, zur Open Night.</p>
-    <div class="ctas rise d3">
-      <a class="btn btn-cyan" href="#buchen">Slot für die Crew anfragen</a>
-      <a class="btn btn-ghost" href="#open-night">Allein kommen: Open Night</a>
-    </div>
-  </div>
-</header>
+<!-- data-focus = the subject box (x y w h in artwork units) that must stay visible on phones -->
+<div class="scene" id="scene" aria-hidden="true" data-focus="400 110 680 560">
 
-<div class="stats" role="list">
-  <div role="listitem"><b class="tnum">1.400 m²</b><span class="mono">Spielfeld Churchtown</span></div>
-  <div role="listitem"><b class="tnum">6–24</b><span class="mono">Spieler pro Runde</span></div>
-  <div role="listitem"><b>4</b><span class="mono">Spielmodi</span></div>
-  <div role="listitem"><b class="tnum">Fr + So</b><span class="mono">11–21 Uhr &amp; nach Absprache</span></div>
+  <!-- ============ LAYER 1: sky, floodlight, farmstead ============ -->
+  <svg id="bg" class="layer" viewBox="0 0 1376 768" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <linearGradient id="gSky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#050828"/>
+        <stop offset=".55" stop-color="#0b0c3a"/>
+        <stop offset="1" stop-color="#2a1458"/>
+      </linearGradient>
+      <linearGradient id="gMoon" gradientUnits="userSpaceOnUse" x1="150" y1="20" x2="330" y2="220">
+        <stop offset="0" stop-color="#2848d0"/>
+        <stop offset=".35" stop-color="#3a60cc"/>
+        <stop offset=".55" stop-color="#8eac66"/>
+        <stop offset=".75" stop-color="#dde818"/>
+        <stop offset="1" stop-color="#f2f204"/>
+      </linearGradient>
+      <radialGradient id="gFlood" gradientUnits="userSpaceOnUse" cx="1190" cy="150" r="330">
+        <stop offset="0" stop-color="#f6f604"/>
+        <stop offset=".35" stop-color="#e2f010"/>
+        <stop offset=".65" stop-color="#9cc83a"/>
+        <stop offset="1" stop-color="#2a4a8a" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="gBlueTR" gradientUnits="userSpaceOnUse" cx="1150" cy="60" r="520">
+        <stop offset="0" stop-color="#3658e2"/>
+        <stop offset=".55" stop-color="#2242c0"/>
+        <stop offset="1" stop-color="#0b0c3a" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="gHalo" cx="50%" cy="50%" r="50%">
+        <stop offset="0" stop-color="#fff66a" stop-opacity=".45"/>
+        <stop offset="1" stop-color="#fff66a" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="gField" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#1a1240" stop-opacity="0"/>
+        <stop offset=".12" stop-color="#1a1240"/>
+        <stop offset=".4" stop-color="#0c0a26"/>
+        <stop offset="1" stop-color="#03041a"/>
+      </linearGradient>
+      <linearGradient id="gBarn" gradientUnits="userSpaceOnUse" x1="120" y1="240" x2="480" y2="470">
+        <stop offset="0" stop-color="#1c1a52"/>
+        <stop offset="1" stop-color="#0a0a2a"/>
+      </linearGradient>
+      <radialGradient id="gDoor" gradientUnits="userSpaceOnUse" cx="360" cy="440" r="120">
+        <stop offset="0" stop-color="#ffcf70" stop-opacity=".55"/>
+        <stop offset="1" stop-color="#ff9a40" stop-opacity="0"/>
+      </radialGradient>
+      <filter id="smoke" x="-25%" y="-25%" width="150%" height="150%">
+        <feTurbulence type="fractalNoise" baseFrequency=".007 .012" numOctaves="3" seed="7" result="n"/>
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="60" xChannelSelector="R" yChannelSelector="G" result="d"/>
+        <feGaussianBlur in="d" stdDeviation="3"/>
+      </filter>
+      <filter id="haze" x="0" y="0" width="100%" height="100%">
+        <feTurbulence type="fractalNoise" baseFrequency=".0045 .007" numOctaves="3" seed="11"/>
+        <feColorMatrix type="matrix" values="0 0 0 0 .07  0 0 0 0 .06  0 0 0 0 .16  0 0 0 1.6 -.62"/>
+      </filter>
+      <filter id="b2" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="2"/></filter>
+      <filter id="b6" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="6"/></filter>
+      <filter id="b14" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="14"/></filter>
+    </defs>
+
+    <rect x="-40" y="-40" width="1456" height="848" fill="url(#gSky)"/>
+
+    <!-- right: blue night sky lit by the arena floodlight -->
+    <path filter="url(#b14)" d="M760 -40 L1416 -40 L1416 520 L760 520 Z" fill="url(#gBlueTR)"/>
+    <g class="drift-a">
+      <path filter="url(#b6)" d="M1010 40 C1060 70 1100 120 1150 150 C1210 186 1300 190 1396 168 L1396 430 C1330 440 1260 430 1200 420 C1120 408 1040 420 980 446 C960 400 990 350 1050 330 C1110 310 1130 270 1110 220 C1090 170 1030 110 1010 40 Z" fill="url(#gFlood)"/>
+      <ellipse cx="1220" cy="180" rx="180" ry="130" fill="url(#gHalo)"/>
+    </g>
+    <!-- floodlight mast -->
+    <g>
+      <path d="M1296 470 L1300 120 L1308 120 L1306 470 Z" fill="#05061e"/>
+      <path d="M1262 96 L1344 90 L1346 128 L1264 132 Z" fill="#090a28"/>
+      <g fill="#fbff9a" filter="url(#b2)">
+        <rect x="1272" y="100" width="14" height="10" rx="2"/><rect x="1292" y="99" width="14" height="10" rx="2"/><rect x="1312" y="98" width="14" height="10" rx="2"/>
+        <rect x="1272" y="114" width="14" height="10" rx="2"/><rect x="1292" y="113" width="14" height="10" rx="2"/><rect x="1312" y="112" width="14" height="10" rx="2"/>
+      </g>
+    </g>
+
+    <!-- top-left: crescent moon, blue to acid yellow -->
+    <g class="drift-c">
+      <path filter="url(#b2)" d="M250 30 C320 40 370 100 368 170 C366 236 312 290 246 296 C292 270 318 222 316 170 C314 110 284 62 250 30 Z" fill="url(#gMoon)"/>
+      <ellipse cx="300" cy="170" rx="150" ry="140" fill="url(#gHalo)" opacity=".55"/>
+    </g>
+
+    <!-- dark smoke on the left -->
+    <g filter="url(#smoke)">
+      <path d="M-10 40 C60 70 110 140 100 220 C92 290 40 330 50 400 C58 450 90 470 84 520 L-10 520 Z" fill="#0b1132"/>
+      <path d="M120 -10 C150 60 140 120 168 190 C186 236 222 266 240 310 C214 296 192 270 176 246 C148 200 112 146 102 86 C96 46 106 20 120 -10 Z" fill="#0a0f2c"/>
+      <path d="M1396 200 C1340 226 1310 270 1330 316 C1346 352 1314 380 1270 392 C1330 404 1380 360 1396 330 Z" fill="#03041a" opacity=".8"/>
+      <path d="M1000 300 C1060 330 1120 330 1170 300 C1130 350 1060 360 1000 330 Z" fill="#03041a" opacity=".5"/>
+    </g>
+
+    <!-- Churchtown: the tower -->
+    <g>
+      <path d="M1128 470 L1128 170 L1166 92 L1204 170 L1204 470 Z" fill="#070826"/>
+      <path d="M1166 92 L1166 60" stroke="#070826" stroke-width="4"/>
+      <path d="M1128 170 L1166 92 L1204 170" fill="none" stroke="#ff4fd8" stroke-width="2" opacity=".75"/>
+      <path d="M1204 170 L1204 470" stroke="#ff4fd8" stroke-width="1.5" opacity=".45"/>
+      <rect x="1156" y="212" width="20" height="30" rx="10" fill="#ffcf70" class="flicker"/>
+      <rect x="1156" y="212" width="20" height="30" rx="10" fill="#ffcf70" filter="url(#b6)" opacity=".8"/>
+    </g>
+
+    <!-- the barn -->
+    <g>
+      <path d="M170 470 L170 330 L350 236 L530 330 L530 470 Z" fill="url(#gBarn)"/>
+      <path d="M170 330 L350 236 L530 330" fill="none" stroke="#c6ff3a" stroke-width="2" opacity=".7"/>
+      <path d="M170 330 L170 470" stroke="#c6ff3a" stroke-width="1.4" opacity=".4"/>
+      <path d="M210 350 L490 350 M210 380 L490 380 M210 410 L490 410 M210 440 L490 440" stroke="#05061e" stroke-width="2" opacity=".55"/>
+      <rect x="300" y="298" width="44" height="30" fill="#05061e"/>
+      <path d="M312 470 L312 396 L408 396 L408 470 Z" fill="#160c10"/>
+      <path d="M318 470 L318 402 L402 402 L402 470 Z" fill="#ffcf70" opacity=".28"/>
+      <ellipse cx="360" cy="450" rx="120" ry="60" fill="url(#gDoor)"/>
+    </g>
+
+    <!-- tree line + field -->
+    <path filter="url(#b2)" d="M-20 470 L-20 430 C30 420 60 432 90 424 C140 450 160 462 170 470 Z M530 470 C550 444 570 434 590 436 C640 420 700 428 760 418 C820 424 880 412 940 420 C1000 410 1060 424 1128 420 L1128 470 Z M1204 470 C1230 440 1260 436 1296 440 L1306 440 C1340 430 1376 436 1396 432 L1396 470 Z" fill="#06071f"/>
+    <rect x="-40" y="440" width="1456" height="368" fill="url(#gField)"/>
+    <rect x="-40" y="-40" width="1456" height="848" filter="url(#haze)"/>
+  </svg>
+
+  <canvas id="fogBack" class="fog back"></canvas>
+
+  <!-- ============ LAYER 2: the illustration ============ -->
+  <svg id="art" class="layer" viewBox="0 0 1376 768" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <filter id="neon" x="-30%" y="-30%" width="160%" height="160%">
+        <feGaussianBlur stdDeviation="4" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <filter id="soft3" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="3"/></filter>
+      <filter id="soft5" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="5"/></filter>
+      <filter id="soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="10"/></filter>
+
+      <linearGradient id="gHoodie" gradientUnits="userSpaceOnUse" x1="640" y1="420" x2="1120" y2="520">
+        <stop offset="0" stop-color="#3a1466"/>
+        <stop offset=".45" stop-color="#1c0838"/>
+        <stop offset=".8" stop-color="#14062c"/>
+        <stop offset="1" stop-color="#4a2a80"/>
+      </linearGradient>
+      <linearGradient id="gHood" gradientUnits="userSpaceOnUse" x1="712" y1="400" x2="1000" y2="160">
+        <stop offset="0" stop-color="#2a0e52"/>
+        <stop offset=".5" stop-color="#1a0838"/>
+        <stop offset="1" stop-color="#5e3e98"/>
+      </linearGradient>
+      <linearGradient id="gSleeve" gradientUnits="userSpaceOnUse" x1="600" y1="420" x2="760" y2="520">
+        <stop offset="0" stop-color="#4a1c80"/>
+        <stop offset=".5" stop-color="#22093e"/>
+        <stop offset="1" stop-color="#0d0322"/>
+      </linearGradient>
+      <linearGradient id="gFace" gradientUnits="userSpaceOnUse" x1="788" y1="240" x2="924" y2="290">
+        <stop offset="0" stop-color="#3a1c42"/>
+        <stop offset=".35" stop-color="#5e3654"/>
+        <stop offset=".7" stop-color="#8a5662"/>
+        <stop offset="1" stop-color="#b07672"/>
+      </linearGradient>
+      <linearGradient id="gHand" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#b47a78"/>
+        <stop offset=".6" stop-color="#8a5464"/>
+        <stop offset="1" stop-color="#5a2e48"/>
+      </linearGradient>
+      <radialGradient id="gIris" cx=".45" cy=".4" r=".6">
+        <stop offset="0" stop-color="#4a5a2a"/>
+        <stop offset="1" stop-color="#120a08"/>
+      </radialGradient>
+      <linearGradient id="gWhite" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#5a4460"/>
+        <stop offset=".5" stop-color="#bcaab4"/>
+        <stop offset="1" stop-color="#d4c6c4"/>
+      </linearGradient>
+      <linearGradient id="gTagger" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#3a3866"/>
+        <stop offset=".35" stop-color="#22203e"/>
+        <stop offset="1" stop-color="#0c0a1c"/>
+      </linearGradient>
+      <linearGradient id="gWoodTop" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#b08250"/>
+        <stop offset="1" stop-color="#6e4628"/>
+      </linearGradient>
+      <linearGradient id="gWood" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#6e4628"/>
+        <stop offset="1" stop-color="#2e1a10"/>
+      </linearGradient>
+      <linearGradient id="gBarrel" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#0c1240"/>
+        <stop offset=".4" stop-color="#22307a"/>
+        <stop offset=".7" stop-color="#141c56"/>
+        <stop offset="1" stop-color="#080c2c"/>
+      </linearGradient>
+      <radialGradient id="gMuzzle" gradientUnits="userSpaceOnUse" cx="520" cy="488" r="230">
+        <stop offset="0" stop-color="#c6ff3a" stop-opacity=".6"/>
+        <stop offset=".35" stop-color="#8cff3a" stop-opacity=".18"/>
+        <stop offset="1" stop-color="#8cff3a" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="gPinkSpill" gradientUnits="userSpaceOnUse" cx="1080" cy="300" r="300">
+        <stop offset="0" stop-color="#ff4fd8" stop-opacity=".35"/>
+        <stop offset="1" stop-color="#ff4fd8" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="gSensor" cx="50%" cy="50%" r="50%">
+        <stop offset="0" stop-color="#fff" stop-opacity="1"/>
+        <stop offset=".25" stop-color="#ff8ae6" stop-opacity=".95"/>
+        <stop offset=".6" stop-color="#ff4fd8" stop-opacity=".35"/>
+        <stop offset="1" stop-color="#ff4fd8" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="gSensorG" cx="50%" cy="50%" r="50%">
+        <stop offset="0" stop-color="#fff" stop-opacity="1"/>
+        <stop offset=".3" stop-color="#e2ff8a" stop-opacity=".95"/>
+        <stop offset=".65" stop-color="#c6ff3a" stop-opacity=".3"/>
+        <stop offset="1" stop-color="#c6ff3a" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="gSink" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#03021a" stop-opacity="0"/>
+        <stop offset=".6" stop-color="#03021a" stop-opacity=".15"/>
+        <stop offset="1" stop-color="#02010e" stop-opacity=".7"/>
+      </linearGradient>
+
+      <clipPath id="clipFace"><path d="M792 200 C822 182 886 180 914 196 C921 222 924 258 921 286 C918 318 906 344 886 360 C870 371 848 371 832 362 C812 350 798 326 792 298 C786 268 786 230 792 200 Z"/></clipPath>
+      <clipPath id="clipEyeL"><path d="M803 256 C812 247 828 246 838 254 C828 261 812 262 803 256 Z"/></clipPath>
+      <clipPath id="clipEyeR"><path d="M859 253 C870 244 888 243 898 251 C888 259 870 260 859 253 Z"/></clipPath>
+    </defs>
+
+    <!-- light pools on the field -->
+    <ellipse cx="560" cy="560" rx="360" ry="60" fill="#c6ff3a" opacity=".07" filter="url(#soft)"/>
+    <ellipse cx="360" cy="470" rx="160" ry="24" fill="#ffcf70" opacity=".12" filter="url(#soft)"/>
+
+    <!-- decorative laser trails (the night is busy) -->
+    <g fill="none" stroke-linecap="round" filter="url(#neon)" class="flicker">
+      <path d="M1396 196 L1010 318" stroke="#ff4fd8" stroke-width="3" opacity=".8"/>
+      <path d="M-20 300 L240 420" stroke="#c6ff3a" stroke-width="2.4" opacity=".6"/>
+    </g>
+    <g fill="none" stroke-linecap="round" stroke="#fff0fb" stroke-width="2">
+      <path class="flow" d="M1396 196 L1010 318"/>
+      <path class="flow d2" d="M-20 300 L240 420" stroke="#f4ffd0"/>
+    </g>
+
+    <!-- mid-ground cover: tyres + barrels -->
+    <g id="cover">
+      <g>
+        <ellipse cx="180" cy="584" rx="62" ry="16" fill="#05061a"/>
+        <rect x="118" y="548" width="124" height="36" rx="16" fill="#10123a"/>
+        <rect x="126" y="518" width="108" height="34" rx="15" fill="#151848"/>
+        <rect x="134" y="490" width="92" height="32" rx="14" fill="#10123a"/>
+        <path d="M134 494 C160 486 200 486 226 494" stroke="#c6ff3a" stroke-width="1.6" fill="none" opacity=".55"/>
+        <path d="M126 524 C160 516 200 516 234 524 M118 554 C160 546 200 546 242 554" stroke="#2e3480" stroke-width="2" fill="none"/>
+      </g>
+      <g>
+        <ellipse cx="380" cy="566" rx="86" ry="14" fill="#05061a"/>
+        <rect x="312" y="486" width="66" height="80" rx="8" fill="url(#gBarrel)"/>
+        <rect x="372" y="478" width="70" height="88" rx="8" fill="url(#gBarrel)"/>
+        <path d="M312 506 L378 506 M312 546 L378 546 M372 500 L442 500 M372 544 L442 544" stroke="#060828" stroke-width="3"/>
+        <ellipse cx="345" cy="487" rx="33" ry="6" fill="#2a3890"/>
+        <ellipse cx="407" cy="479" rx="35" ry="6" fill="#2a3890"/>
+        <path d="M312 488 C330 482 360 482 378 488 M372 480 C392 474 422 474 442 480" stroke="#c6ff3a" stroke-width="1.6" fill="none" opacity=".6"/>
+        <path d="M442 482 L442 560" stroke="#ff4fd8" stroke-width="1.4" opacity=".5"/>
+      </g>
+    </g>
+
+    <!-- enemy sensors (JS spawns/flashes them) -->
+    <g id="targets"></g>
+
+    <!-- pink spill on the player from the right -->
+    <ellipse cx="1080" cy="320" rx="300" ry="300" fill="url(#gPinkSpill)"/>
+
+    <!-- ===== the player ===== -->
+    <g id="player">
+    <g class="breathe">
+      <!-- torso (hoodie) -->
+      <path d="M640 600 C648 490 676 430 728 404 C766 386 800 384 830 398 L900 398 C940 384 990 386 1030 404 C1084 428 1112 490 1122 600 Z" fill="url(#gHoodie)"/>
+      <path d="M680 470 C700 450 720 440 740 436 M1010 440 C1040 452 1064 476 1080 510" stroke="#0b0222" stroke-width="3" fill="none" opacity=".7"/>
+      <path d="M1030 404 C1084 428 1112 490 1122 600" stroke="#ff4fd8" stroke-width="2.4" fill="none" opacity=".6"/>
+      <path d="M640 600 C648 490 676 430 728 404" stroke="#c6ff3a" stroke-width="2" fill="none" opacity=".55"/>
+
+      <!-- vest -->
+      <path d="M772 420 C820 412 900 412 952 420 L968 600 L756 600 Z" fill="#0f0e2a"/>
+      <path d="M772 420 C820 412 900 412 952 420" stroke="#3a3870" stroke-width="2" fill="none"/>
+      <g stroke="#26244e" stroke-width="3">
+        <path d="M770 462 L956 462 M768 492 L958 492"/>
+      </g>
+      <g fill="#c6ff3a" class="led">
+        <circle cx="902" cy="477" r="2.6"/><circle cx="914" cy="477" r="2.6"/><circle cx="926" cy="477" r="2.6" opacity=".35"/>
+      </g>
+      <text x="790" y="482" font-family="Syne, Inter, sans-serif" font-weight="800" font-size="13" fill="#c6ff3a" opacity=".85" letter-spacing="2">GRÜN 07</text>
+
+      <!-- shoulder sensors -->
+      <g>
+        <ellipse cx="740" cy="410" rx="30" ry="15" fill="#16163a"/>
+        <ellipse cx="1004" cy="412" rx="30" ry="15" fill="#16163a"/>
+        <ellipse id="padL" cx="740" cy="406" rx="20" ry="11" fill="url(#gSensorG)" class="pulse"/>
+        <ellipse id="padR" cx="1004" cy="408" rx="20" ry="11" fill="url(#gSensorG)" class="pulse d2"/>
+      </g>
+
+      <!-- hood, back -->
+      <path d="M712 420 C712 350 728 260 760 205 C790 152 838 128 880 130 C930 132 966 168 980 220 C994 275 990 340 1006 412 C960 396 920 394 900 400 L830 400 C800 390 760 396 712 420 Z" fill="url(#gHood)"/>
+      <path d="M980 220 C994 275 990 340 1006 412" stroke="#ff4fd8" stroke-width="2.4" fill="none" opacity=".7"/>
+      <path d="M712 420 C712 350 728 260 760 205" stroke="#c6ff3a" stroke-width="2" fill="none" opacity=".6"/>
+      <!-- hood cavity -->
+      <path d="M776 215 C792 172 830 152 870 152 C912 152 940 178 944 222 C948 270 940 330 920 362 C900 392 860 404 830 396 C800 388 780 360 772 320 C766 290 766 245 776 215 Z" fill="#07021a"/>
+
+      <!-- ===== HEAD (JS drives #head) ===== -->
+      <g id="head">
+        <!-- neck + gaiter -->
+        <path d="M830 352 C832 376 834 390 836 404 L886 404 C886 390 888 376 892 352 Z" fill="#2e1630"/>
+        <path d="M806 396 C830 382 890 380 914 392 L920 436 C892 448 834 450 802 436 Z" fill="#151032"/>
+        <path d="M812 414 C840 424 884 424 914 412" stroke="#c6ff3a" stroke-width="2" fill="none" opacity=".6"/>
+        <path d="M820 400 C844 408 876 408 904 398" stroke="#0a0820" stroke-width="2.4" fill="none"/>
+
+        <!-- face -->
+        <path d="M792 200 C822 182 886 180 914 196 C921 222 924 258 921 286 C918 318 906 344 886 360 C870 371 848 371 832 362 C812 350 798 326 792 298 C786 268 786 230 792 200 Z" fill="url(#gFace)"/>
+        <g clip-path="url(#clipFace)">
+          <g filter="url(#soft5)">
+            <ellipse cx="855" cy="208" rx="74" ry="18" fill="#200c30" opacity=".85"/>
+            <path d="M786 210 C800 230 806 280 812 330 C800 330 788 300 786 260 Z" fill="#1a0828" opacity=".8"/>
+            <ellipse cx="820" cy="254" rx="24" ry="12" fill="#0e020a" opacity=".7"/>
+            <ellipse cx="879" cy="251" rx="26" ry="12" fill="#0e020a" opacity=".62"/>
+            <path d="M846 258 C842 275 838 290 836 300 C832 302 826 300 826 296 C830 284 838 270 842 258 Z" fill="#200a2a" opacity=".65"/>
+            <ellipse cx="900" cy="292" rx="16" ry="26" fill="#c88a78" opacity=".5"/>
+            <ellipse cx="848" cy="294" rx="8" ry="5" fill="#d09a84" opacity=".7"/>
+            <ellipse cx="853" cy="342" rx="18" ry="5" fill="#2a0c20" opacity=".45"/>
+            <ellipse cx="812" cy="334" rx="14" ry="26" fill="#9ae040" opacity=".28"/>
+            <path d="M832 362 C848 371 870 371 886 360 C870 352 848 352 832 362 Z" fill="#1e0a2c" opacity=".6"/>
+          </g>
+        </g>
+        <!-- rim lights -->
+        <path d="M792 210 C786 240 786 272 792 300 C798 326 812 350 832 362" stroke="#c6ff3a" stroke-width="2" fill="none" opacity=".75"/>
+        <path d="M918 220 C922 250 922 290 916 316 C910 338 900 352 886 360" stroke="#ff6ad0" stroke-width="2.4" fill="none" opacity=".75"/>
+
+        <!-- brows -->
+        <g id="browL"><path d="M798 238 C812 229 830 231 843 242 L841 247 C828 238 812 238 799 244 Z" fill="#12050c"/></g>
+        <g id="browR"><path d="M856 242 C868 230 888 227 904 233 L903 239 C888 234 870 236 858 247 Z" fill="#12050c"/></g>
+
+        <!-- eyes -->
+        <g id="eyeL">
+          <g clip-path="url(#clipEyeL)">
+            <rect x="800" y="244" width="42" height="20" fill="url(#gWhite)"/>
+            <g id="irisL">
+              <circle cx="822" cy="254" r="6.4" fill="url(#gIris)"/>
+              <circle cx="822" cy="254" r="3" fill="#040102"/>
+              <circle cx="824" cy="252" r="1.4" fill="#fff"/>
+            </g>
+            <rect x="800" y="244" width="42" height="7" fill="#12040c" opacity=".45"/>
+            <rect id="lidL" x="800" y="244" width="42" height="0" fill="#3a1a36"/>
+          </g>
+          <path id="lashL" d="M802 257 C811 246 829 244 839 253 C828 249 813 250 802 257 Z" fill="#0c0308"/>
+        </g>
+        <g id="eyeR">
+          <g clip-path="url(#clipEyeR)">
+            <rect x="856" y="241" width="46" height="20" fill="url(#gWhite)"/>
+            <g id="irisR">
+              <circle cx="879" cy="251" r="6.4" fill="url(#gIris)"/>
+              <circle cx="879" cy="251" r="3" fill="#040102"/>
+              <circle cx="881" cy="249" r="1.4" fill="#fff"/>
+            </g>
+            <rect x="856" y="241" width="46" height="7" fill="#12040c" opacity=".45"/>
+            <rect id="lidR" x="856" y="241" width="46" height="0" fill="#46223e"/>
+          </g>
+          <path id="lashR" d="M858 254 C868 243 888 241 899 250 C888 246 870 247 858 254 Z" fill="#0c0308"/>
+        </g>
+
+        <!-- nose -->
+        <path d="M851 258 C850 272 849 284 851 292" stroke="#e8c49a" stroke-width="2" fill="none" stroke-linecap="round" opacity=".55"/>
+        <path d="M834 300 C842 306 852 306 860 300" stroke="#1e0816" stroke-width="2" fill="none" stroke-linecap="round" opacity=".7"/>
+
+        <!-- mouth (JS morphs the grin) -->
+        <path id="mouth" d="M828 328 C840 333 858 333 874 326" fill="none" stroke="#24080f" stroke-width="2.4" stroke-linecap="round"/>
+        <path id="mouthCorner" d="M874 326 C877 324 879 322 880 318" fill="none" stroke="#24080f" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M838 338 C848 340 858 339 866 336" fill="none" stroke="#c89088" stroke-width="2.4" opacity=".45" stroke-linecap="round"/>
+
+        <!-- headband with sensor -->
+        <path d="M788 208 C822 188 888 186 918 199 L919 218 C888 206 822 208 790 226 Z" fill="#121032"/>
+        <path d="M788 208 C822 188 888 186 918 199" stroke="#3a3870" stroke-width="1.6" fill="none"/>
+        <ellipse cx="853" cy="200" rx="13" ry="8" fill="#1c1a44"/>
+        <ellipse id="headSensor" cx="853" cy="198" rx="10" ry="6" fill="url(#gSensorG)" class="pulse"/>
+      </g>
+
+      <!-- hood rim over the face edge -->
+      <path d="M772 336 C762 284 764 232 780 204 C800 164 838 148 872 148 C914 150 942 178 948 224 C952 270 946 322 928 356" fill="none" stroke="#2a1056" stroke-width="16" stroke-linecap="round"/>
+      <path d="M766 330 C758 282 760 232 776 200 C794 164 830 146 864 144" fill="none" stroke="#c6ff3a" stroke-width="1.8" opacity=".55"/>
+      <path d="M894 148 C930 158 952 190 956 230 C958 270 950 320 934 352" fill="none" stroke="#ff4fd8" stroke-width="2" opacity=".7"/>
+      <!-- drawstrings -->
+      <g stroke="#d8d0ff" stroke-width="2.2" fill="none" opacity=".75" stroke-linecap="round">
+        <path id="cordL" d="M812 440 C808 460 806 478 808 500"/>
+        <path id="cordR" d="M910 440 C914 458 916 476 914 496"/>
+      </g>
+
+      <!-- sleeves (static) -->
+      <path d="M690 412 C664 426 642 446 628 466 L670 490 C686 468 710 454 744 444 Z" fill="url(#gSleeve)"/>
+      <path d="M690 412 C664 426 642 446 628 466" stroke="#c6ff3a" stroke-width="2" fill="none" opacity=".55"/>
+      <path d="M1008 428 C1050 450 1064 500 1058 548 L1000 548 C1004 510 998 480 984 458 Z" fill="#1a0834"/>
+      <path d="M1052 524 C990 510 924 502 874 498 L872 528 C924 530 990 540 1042 552 Z" fill="#200a3e"/>
+      <path d="M1052 524 C990 510 924 502 874 498" stroke="#ff4fd8" stroke-width="1.8" fill="none" opacity=".5"/>
+
+      <!-- ===== the tagger + hands (JS rotates #rig around the rear grip) ===== -->
+      <g id="rig">
+        <!-- stock -->
+        <path d="M862 474 L936 468 L942 512 L868 522 Z" fill="#17152e"/>
+        <!-- body -->
+        <path d="M700 468 L874 462 L880 516 L700 520 Z" fill="url(#gTagger)"/>
+        <path d="M700 468 L874 462" stroke="#c6ff3a" stroke-width="1.6" opacity=".6"/>
+        <path d="M700 520 L880 516" stroke="#ff4fd8" stroke-width="1.2" opacity=".4"/>
+        <!-- display -->
+        <rect x="806" y="476" width="50" height="20" rx="3" fill="#06061a" stroke="#2c2a54"/>
+        <text id="tagScore" x="831" y="491" text-anchor="middle" font-family="Syne, Inter, sans-serif" font-weight="800" font-size="13" fill="#c6ff3a">00</text>
+        <!-- rail + sensor dome -->
+        <rect x="720" y="458" width="140" height="7" rx="2" fill="#0e0c22"/>
+        <path d="M772 459 C774 446 806 446 808 459 Z" fill="#20203e"/>
+        <ellipse id="rigSensor" cx="790" cy="455" rx="12" ry="6" fill="url(#gSensorG)" class="pulse d2"/>
+        <!-- barrel housing -->
+        <path d="M576 474 L702 466 L702 516 L576 506 Z" fill="#1d1b38"/>
+        <path d="M600 478 L600 504 M616 477 L616 506 M632 476 L632 508 M680 472 L680 512" stroke="#0a0918" stroke-width="3"/>
+        <path d="M576 474 L702 466" stroke="#c6ff3a" stroke-width="1.4" opacity=".55"/>
+        <!-- muzzle + lens -->
+        <path d="M520 479 L578 474 L578 506 L520 499 Z" fill="#2a2850"/>
+        <path d="M520 479 L578 474" stroke="#c6ff3a" stroke-width="1.6" opacity=".8"/>
+        <ellipse id="muzzleGlow" cx="520" cy="489" rx="120" ry="80" fill="url(#gMuzzle)" opacity=".7"/>
+        <ellipse cx="520" cy="489" rx="5" ry="10" fill="#e8ff9a" filter="url(#neon)"/>
+        <!-- foregrip -->
+        <rect x="634" y="506" width="24" height="34" rx="4" fill="#14122a"/>
+
+        <!-- front hand -->
+        <g>
+          <path d="M664 494 L690 486 L700 512 L670 520 Z" fill="#22093e"/>
+          <path d="M620 498 C628 486 658 484 670 494 C678 508 674 530 662 538 C642 544 624 534 618 520 Z" fill="url(#gHand)"/>
+          <g fill="none" stroke="#4a2034" stroke-width="2" stroke-linecap="round">
+            <path d="M626 506 C636 506 650 508 660 512"/><path d="M624 516 C634 518 648 520 660 524"/><path d="M628 528 C638 530 650 532 658 534"/>
+          </g>
+          <path d="M630 494 C640 488 654 488 664 494" fill="none" stroke="#e0b0a0" stroke-width="2" opacity=".7" stroke-linecap="round"/>
+          <path d="M618 506 C616 516 620 528 628 534" fill="none" stroke="#c6ff3a" stroke-width="1.6" opacity=".7"/>
+        </g>
+        <!-- rear hand -->
+        <g>
+          <path d="M870 498 L896 500 L894 528 L868 526 Z" fill="#200a3e"/>
+          <path d="M836 500 C846 492 866 494 876 504 C880 518 876 536 864 540 C848 542 836 534 832 520 Z" fill="url(#gHand)"/>
+          <g fill="none" stroke="#4a2034" stroke-width="2" stroke-linecap="round">
+            <path d="M838 510 C848 510 860 512 870 516"/><path d="M836 520 C846 522 858 524 870 528"/>
+          </g>
+          <path d="M842 498 C852 494 864 496 872 502" fill="none" stroke="#e0b0a0" stroke-width="2" opacity=".6" stroke-linecap="round"/>
+        </g>
+      </g>
+    </g>
+    </g>
+
+    <!-- beams + sparks (JS) -->
+    <g id="fx"></g>
+
+    <!-- ===== foreground cover: stacked pallets ===== -->
+    <g id="pallets">
+      <path d="M470 522 L496 508 L1254 508 L1272 522 Z" fill="url(#gWoodTop)"/>
+      <path d="M496 508 L1254 508" stroke="#e8c078" stroke-width="1.4" opacity=".5"/>
+      <g id="palletRows"></g>
+      <text x="780" y="638" font-family="Syne, Inter, sans-serif" font-weight="800" font-size="22" letter-spacing="8" fill="#ff4fd8" opacity=".55" transform="rotate(-1 780 638)">CHURCHTOWN</text>
+      <text x="1176" y="640" font-family="Syne, Inter, sans-serif" font-weight="800" font-size="40" fill="#c6ff3a" opacity=".45" transform="rotate(-4 1176 640)">03</text>
+      <!-- green light from the muzzle on the wood -->
+      <ellipse cx="560" cy="540" rx="200" ry="70" fill="#c6ff3a" opacity=".14" filter="url(#soft)"/>
+      <path d="M1272 522 L1272 768" stroke="#ff4fd8" stroke-width="2" opacity=".35"/>
+    </g>
+
+    <rect x="0" y="420" width="1376" height="348" fill="url(#gSink)" pointer-events="none"/>
+  </svg>
+
+  <canvas id="fogFront" class="fog front"></canvas>
+
+  <!-- ============ LAYER 3: film grain (generated) ============ -->
+  <svg id="grain" viewBox="0 0 400 400" preserveAspectRatio="none">
+    <filter id="noise"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
+    <rect width="400" height="400" filter="url(#noise)"/>
+  </svg>
+  <div class="vignette"></div>
+  <div class="artfade"></div>
 </div>
 
-<!-- ARENA -->
-<section class="block" id="arena-info">
-  <div class="wrap">
-    <span class="tag mono">Arena</span>
-    <h2 class="h2">Kein Hallenteppich. Kein Schwarzlicht. Ein echter Hof.</h2>
-    <p class="intro">Bei uns wird draußen gespielt: Scheunenkanten, Holzstapel, Mauern, Gras unter den Schuhen. Wer Indoor-Lasertag kennt, kennt die Idee. Das Gefühl ist ein anderes, sobald Wind, Licht und Gelände mitspielen.</p>
-    <div class="zones">
-      <article class="zone main">
-        <span class="k mono">Map 01 · Staig</span>
-        <h3>Churchtown</h3>
-        <div class="big tnum">1.400<small>m²</small></div>
-        <p>Die Hof-Map in Staig. Platz für 6 bis 24 Spieler: genug Deckung für Taktik, genug offene Fläche für den einen Sprint, der das Spiel dreht.</p>
-      </article>
-      <article class="zone">
-        <span class="k mono">Map 02 · Staig</span>
-        <h3>Shadows</h3>
-        <p>Die Zone für Kurzwaffen. Enger, schneller, näher dran. Für Runden, in denen Reaktion mehr zählt als Reichweite.</p>
-      </article>
-      <article class="zone">
-        <span class="k mono">Map 03 · Bei euch</span>
-        <h3>Mobil</h3>
-        <p>Firmengelände, Vereinsheim, eigener Hof? Wir bringen Ausrüstung und Spielleitung zu euch und bauen die Arena dort auf.</p>
-      </article>
-    </div>
-    <div class="tech">
-      <div><span class="mono" style="color:var(--cyan)">Signal</span><b>Infrarot, kein Projektil</b><p>Der Tagger sendet ein Lichtsignal. Nichts fliegt, nichts tut weh, nichts färbt ab.</p></div>
-      <div><span class="mono" style="color:var(--cyan)">Sensor</span><b>Treffer in Echtzeit</b><p>Jeder Spieler trägt einen Sensor. Ein Treffer wird sofort gezählt, ohne Diskussion, ohne Schiedsrichter-Streit.</p></div>
-      <div><span class="mono" style="color:var(--cyan)">Auswertung</span><b>Zahlen nach jeder Runde</b><p>Wer hat getroffen, wer hat gehalten, wer hat das Team getragen. Am Ende steht es schwarz auf weiß.</p></div>
-    </div>
+<div class="hero">
+  <p class="eyebrow">Outdoor-Lasertag · Staig bei Ulm</p>
+  <h1>Du siehst nur <em>Lichter.</em></h1>
+  <p class="lede">1.400 m² Hof-Arena, Infrarot statt Farbkugeln, jeder Treffer in Echtzeit auf dem Sensor. Klick auf die pinken Sensoren: Er zielt mit.</p>
+  <div class="cta">
+    <a class="btn btn-primary" href="#buchen">Slot anfragen</a>
+    <a class="btn btn-ghost" href="#open-night">Allein kommen</a>
   </div>
+</div>
+
+<div class="hint" aria-live="polite"><i></i>Klick ins Feld · Treffer <b id="hintScore">00</b></div>
 </section>
 
-<div class="beam" aria-hidden="true"></div>
+<header class="nav" id="nav">
+  <a class="logo" href="#top">SHOOTEX<span>.</span></a>
+  <nav class="links" aria-label="Hauptnavigation">
+    <a href="#arena">Arena</a>
+    <a href="#modi">Modi</a>
+    <a href="#open-night">Open Night</a>
+    <a href="#preise">Preise</a>
+    <a href="#cup">Cup</a>
+  </nav>
+  <a class="btn btn-ghost" href="#buchen">Buchen</a>
+</header>
 
-<!-- MODES -->
-<section class="block" id="modi">
-  <div class="wrap">
-    <span class="tag mono">Spielmodi</span>
-    <h2 class="h2">Vier Arten, eine Runde zu gewinnen.</h2>
-    <p class="intro">Ihr entscheidet vor Ort, was gespielt wird. Die meisten Gruppen wechseln nach jeder Runde, weil jeder Modus andere Leute nach vorne bringt.</p>
-    <div class="modes">
-      <article class="mode" style="--c:var(--cyan)">
-        <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M6 14l12 10-12 10M42 14L30 24l12 10"/><circle cx="24" cy="24" r="2.5"/></svg>
-        <h3>Team Deathmatch</h3>
-        <p>Zwei Teams, eine Uhr. Wer am Ende mehr Treffer gesetzt hat, gewinnt. Der ehrlichste Modus für den Einstieg.</p>
-        <span class="meta mono">Einstieg · alle Gruppengrößen</span>
-      </article>
-      <article class="mode" style="--c:var(--magenta)">
-        <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 5l16.5 9.5v19L24 43 7.5 33.5v-19z"/><circle cx="24" cy="24" r="5"/></svg>
-        <h3>Herrschaft</h3>
-        <p>Kontrollpunkte auf dem Feld. Wer sie hält, punktet, und zwar jede Sekunde. Wer nur auf Treffer spielt, verliert hier.</p>
-        <span class="meta mono">Taktik · Zonenkontrolle</span>
-      </article>
-      <article class="mode" style="--c:var(--amber)">
-        <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="12" y="16" width="24" height="18" rx="1"/><path d="M18 16v-5h12v5M24 21v5l3 2"/></svg>
-        <h3>Suchen &amp; Zerstören</h3>
-        <p>Der Taktikmodus für Teams von 3 bis 6. Ein Team platziert die Bombe, das andere muss sie entschärfen. Absprache schlägt Tempo.</p>
-        <span class="meta mono">3–6 pro Team · Taktik</span>
-      </article>
-      <article class="mode" style="--c:var(--cyan)">
-        <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M14 43V6M14 8h22l-5 7 5 7H14"/></svg>
-        <h3>Capture the Flag</h3>
-        <p>Hol die Flagge des Gegners in deine Basis, ohne deine eigene zu verlieren. Klingt einfach. Ist es nicht.</p>
-        <span class="meta mono">Tempo · Teamplay</span>
-      </article>
-    </div>
+<main>
+  <div class="facts">
+    <div><b>1.400 m²</b><span>Spielfeld Churchtown</span></div>
+    <div><b>6–24</b><span>Spieler pro Runde</span></div>
+    <div><b>4</b><span>Spielmodi</span></div>
+    <div><b>Fr + So</b><span>11–21 Uhr &amp; nach Absprache</span></div>
   </div>
-</section>
 
-<!-- OPEN NIGHT -->
-<section class="block open" id="open-night">
-  <div class="wrap">
-    <span class="tag mono">Neu · Open Night</span>
-    <h2 class="h2">Komm <em>allein.</em> Spiel im Team.</h2>
-    <p class="intro">Ihr seid nur zu dritt? Keiner deiner Freunde hat am Freitag Zeit? Egal. Bei der Open Night buchst du einen einzelnen Platz. Die Teams stellen wir vor Ort zusammen, ausgeglichen nach Erfahrung.</p>
-    <div class="open-grid">
-      <div>
-        <ol class="steps">
-          <li><div><b>Einzelplatz buchen</b><p>Ein Ticket pro Person, höchstens vier pro Buchung. Keine Mindestgruppe, keine Absprache mit fünf anderen Leuten.</p></div></li>
-          <li><div><b>Spielgarantie ab 10 Spielern</b><p>Kommen bis zwei Tage vorher 10 Leute zusammen, wird gespielt. Wenn nicht, bekommst du dein Geld komplett zurück.</p></div></li>
-          <li><div><b>Teams werden gemischt</b><p>Stammspieler und Neulinge verteilen wir so, dass keine Seite nach fünf Minuten durch ist.</p></div></li>
-          <li><div><b>Deine Treffer zählen</b><p>Jede Open Night fließt in die Rangliste. Wer oben steht, bekommt eine Einladung zum nächsten Shootex Cup.</p></div></li>
-        </ol>
-        <div class="lobby">
-          <b class="mono">Lobby öffnen</b>
-          <p>Ihr seid 8 und wollt mehr Gegner? Öffnet eure gebuchte Runde für Einzelspieler. Wir füllen die freien Plätze auf, und ihr zahlt dafür weniger pro Kopf.</p>
-        </div>
+  <!-- ARENA -->
+  <section class="block" id="arena">
+    <div class="wrap">
+      <p class="eyebrow">Arena</p>
+      <h2>Kein Hallenteppich. <em>Ein echter Hof.</em></h2>
+      <p class="intro">Bei uns wird draußen gespielt: Scheunenkanten, Palettenstapel, Fässer, Gras unter den Schuhen. Wer Indoor-Lasertag kennt, kennt die Idee. Das Gefühl ist ein anderes, sobald Wind, Licht und Gelände mitspielen.</p>
+      <div class="zones">
+        <article class="zone zone-main">
+          <span class="label">Map 01 · Staig</span>
+          <h3>Churchtown</h3>
+          <div class="big">1.400<small>m²</small></div>
+          <p>Die Hof-Map in Staig. Platz für 6 bis 24 Spieler: genug Deckung für Taktik, genug offene Fläche für den einen Sprint, der das Spiel dreht.</p>
+        </article>
+        <article class="zone">
+          <span class="label">Map 02 · Staig</span>
+          <h3>Shadows</h3>
+          <p>Die Zone für Kurzwaffen. Enger, schneller, näher dran. Für Runden, in denen Reaktion mehr zählt als Reichweite.</p>
+        </article>
+        <article class="zone">
+          <span class="label">Map 03 · Bei euch</span>
+          <h3>Mobil</h3>
+          <p>Firmengelände, Vereinsheim, eigener Hof? Wir bringen Ausrüstung und Spielleitung mit und bauen die Arena bei euch auf.</p>
+        </article>
       </div>
-      <div class="nights" aria-live="polite">
-        <div class="nights-head"><span class="mono">Nächste Termine · 19–21 Uhr · ab 18</span><span class="mono">Ticket 25 €</span></div>
-        <div id="nights"></div>
-        <p class="note">Beispielansicht. Die Auslastung ist simuliert, damit man sieht, wie die Seite im Betrieb aussehen würde.</p>
+      <div class="tech">
+        <div><span class="label">Signal</span><b>Infrarot, kein Projektil</b><p>Der Tagger sendet ein Lichtsignal. Nichts fliegt, nichts tut weh, nichts färbt ab.</p></div>
+        <div><span class="label">Sensor</span><b>Treffer in Echtzeit</b><p>Jeder Spieler trägt Sensoren an Kopf und Schultern. Ein Treffer wird sofort gezählt, ohne Diskussion.</p></div>
+        <div><span class="label">Auswertung</span><b>Zahlen nach jeder Runde</b><p>Wer hat getroffen, wer hat gehalten, wer hat das Team getragen. Am Ende steht es schwarz auf weiß.</p></div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- PRICES -->
-<section class="block" id="preise">
-  <div class="wrap">
-    <span class="tag mono">Preise</span>
-    <h2 class="h2">Pro Kopf, pro Stunde. Bezahlt wird vor Ort.</h2>
-    <div class="price-grid">
-      <div>
-        <div class="tiers">
-          <div class="tier"><b>12–17 Spieler</b><span>z. B. 12 Spieler, 1 Stunde: 210,00 €</span><div class="p tnum">17,50 €<small>pro Person / Std.</small></div></div>
-          <div class="tier"><b>18–24 Spieler</b><span>z. B. 18 Spieler, 1 Stunde: 297,00 €</span><div class="p tnum">16,50 €<small>pro Person / Std.</small></div></div>
-          <div class="tier amber"><b>Open Night</b><span>Einzelticket, 2 Stunden, gemischte Teams</span><div class="p tnum">25 €<small>pro Ticket</small></div></div>
-        </div>
-        <div class="fine">
-          <span>Mindestbuchung 1 Stunde. Ab der 3. Stunde gibt es Rabatt.</span>
-          <span>10 % für Schüler, Studierende und mit Schwerbehindertenausweis. Ausweis bitte vor Ort zeigen.</span>
-          <span>Bezahlung vor Ort, bar oder mit Karte.</span>
-        </div>
+  <!-- MODES -->
+  <section class="block" id="modi">
+    <div class="wrap">
+      <p class="eyebrow">Spielmodi</p>
+      <h2>Vier Arten, eine Runde <em>zu gewinnen.</em></h2>
+      <p class="intro">Ihr entscheidet vor Ort, was gespielt wird. Die meisten Gruppen wechseln nach jeder Runde, weil jeder Modus andere Leute nach vorne bringt.</p>
+      <div class="modes">
+        <article class="mode" style="--c:var(--neon)">
+          <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M6 14l12 10-12 10M42 14L30 24l12 10"/><circle cx="24" cy="24" r="2.5"/></svg>
+          <h3>Team Deathmatch</h3>
+          <p>Zwei Teams, eine Uhr. Wer am Ende mehr Treffer gesetzt hat, gewinnt. Der ehrlichste Modus für den Einstieg.</p>
+          <span class="label">Einstieg · alle Gruppengrößen</span>
+        </article>
+        <article class="mode" style="--c:var(--pink)">
+          <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 5l16.5 9.5v19L24 43 7.5 33.5v-19z"/><circle cx="24" cy="24" r="5"/></svg>
+          <h3>Herrschaft</h3>
+          <p>Kontrollpunkte auf dem Feld. Wer sie hält, punktet, und zwar jede Sekunde. Wer nur auf Treffer spielt, verliert hier.</p>
+          <span class="label">Taktik · Zonenkontrolle</span>
+        </article>
+        <article class="mode" style="--c:var(--yellow)">
+          <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="12" y="16" width="24" height="18" rx="1"/><path d="M18 16v-5h12v5M24 21v5l3 2"/></svg>
+          <h3>Suchen &amp; Zerstören</h3>
+          <p>Der Taktikmodus für Teams von 3 bis 6. Ein Team platziert die Bombe, das andere muss sie entschärfen. Absprache schlägt Tempo.</p>
+          <span class="label">3–6 pro Team · Taktik</span>
+        </article>
+        <article class="mode" style="--c:var(--blue-l)">
+          <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M14 43V6M14 8h22l-5 7 5 7H14"/></svg>
+          <h3>Capture the Flag</h3>
+          <p>Hol die Flagge des Gegners in deine Basis, ohne deine eigene zu verlieren. Klingt einfach. Ist es nicht.</p>
+          <span class="label">Tempo · Teamplay</span>
+        </article>
       </div>
-      <div class="calc" aria-label="Preisrechner">
-        <span class="mono" style="color:var(--cyan)">Rechner</span>
+    </div>
+  </section>
+
+  <!-- OPEN NIGHT -->
+  <section class="block open" id="open-night">
+    <div class="wrap">
+      <p class="eyebrow">Neu · Open Night</p>
+      <h2>Komm <em>allein.</em> Spiel im Team.</h2>
+      <p class="intro">Ihr seid nur zu dritt? Keiner deiner Freunde hat am Freitag Zeit? Egal. Bei der Open Night buchst du einen einzelnen Platz. Die Teams stellen wir vor Ort zusammen, ausgeglichen nach Erfahrung.</p>
+      <div class="open-grid">
         <div>
-          <label for="players" class="mono">Spieler <output id="players-out" class="tnum">12</output></label>
-          <input type="range" id="players" min="6" max="24" value="12">
-        </div>
-        <div>
-          <span class="mono" style="color:var(--mute);display:block;margin-bottom:8px" id="hours-label">Dauer</span>
-          <div class="seg" role="group" aria-labelledby="hours-label">
-            <button type="button" data-h="1" aria-pressed="true">1 Std.</button>
-            <button type="button" data-h="2" aria-pressed="false">2 Std.</button>
-            <button type="button" data-h="3" aria-pressed="false">3 Std.</button>
+          <ol class="steps">
+            <li><div><b>Einzelplatz buchen</b><p>Ein Ticket pro Person, höchstens vier pro Buchung. Keine Mindestgruppe, keine Absprache mit fünf anderen Leuten.</p></div></li>
+            <li><div><b>Spielgarantie ab 10 Spielern</b><p>Kommen bis zwei Tage vorher 10 Leute zusammen, wird gespielt. Wenn nicht, bekommst du dein Geld komplett zurück.</p></div></li>
+            <li><div><b>Teams werden gemischt</b><p>Stammspieler und Neulinge verteilen wir so, dass keine Seite nach fünf Minuten durch ist.</p></div></li>
+            <li><div><b>Deine Treffer zählen</b><p>Jede Open Night fließt in die Rangliste. Wer oben steht, bekommt eine Einladung zum nächsten Shootex Cup.</p></div></li>
+          </ol>
+          <div class="lobby">
+            <span class="label">Lobby öffnen</span>
+            <p>Ihr seid 8 und wollt mehr Gegner? Öffnet eure gebuchte Runde für Einzelspieler. Wir füllen die freien Plätze auf, und ihr zahlt dafür weniger pro Kopf.</p>
           </div>
         </div>
-        <label class="check" for="discount"><input type="checkbox" id="discount"> Schüler, Studis, Schwerbehindertenausweis (−10 %)</label>
-        <div class="total" aria-live="polite">
-          <span class="mono" style="color:var(--mute)" id="sum-label">Gesamt</span>
-          <div class="sum tnum" id="sum">210,00 €</div>
-          <div class="per tnum" id="per">17,50 € pro Person</div>
-          <div class="hint" id="hint" hidden></div>
+        <div class="nights" aria-live="polite">
+          <div class="nights-head"><span class="label">Nächste Termine · 19–21 Uhr · ab 18</span><span class="label">Ticket 25 €</span></div>
+          <div id="nights"></div>
+          <p class="note">Beispielansicht. Die Auslastung ist simuliert, damit man sieht, wie die Seite im Betrieb aussehen würde.</p>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<div class="beam" aria-hidden="true"></div>
-
-<!-- CUP + OCCASIONS -->
-<section class="block" id="cup">
-  <div class="wrap">
-    <span class="tag mono">Shootex Cup</span>
-    <h2 class="h2">Für alle, denen ein lustiger Abend nicht reicht.</h2>
-    <p class="intro">Der Shootex Cup ist die Turnierserie mit offizieller Rangliste. Feste Teams, echte Finals, Livestream. Wer einmal im Finale stand, kommt meistens wieder.</p>
-    <div class="cup">
-      <div class="log">
-        <div class="entry"><span class="when mono">19.06.2024 · 2. Shootex Cup</span><b>The Crabs</b><p>Nach Jahren voller Rückschläge gewinnen The Crabs das Finale gegen den erfahrenen Trödeltrupp. Mit Taktik und Teamplay.</p></div>
-        <div class="entry"><span class="when mono">04.04.2024 · 1. Shootex Cup</span><b>All Gas No Breaks</b><p>Das erste Finale wird live gestreamt und denkbar knapp im letzten Spiel entschieden.</p></div>
-        <div class="entry"><span class="when mono">2024 · Newcomer Cup</span><b>Für Einsteiger</b><p>Turnierluft ohne Veteranen. Der Weg in die Rangliste für Teams, die gerade erst anfangen.</p></div>
-      </div>
-      <div>
-        <span class="mono" style="color:var(--mute);display:block;margin-bottom:14px">Wer bei uns spielt</span>
-        <div class="occasions">
-          <div class="occ"><b>Crews &amp; Freunde</b><p>Der Klassiker: einmal im Monat, Revanche fest eingeplant.</p></div>
-          <div class="occ"><b>Junggesellenabschied</b><p>Ein Team gegen den Bräutigam oder die Braut. Danach habt ihr Gesprächsstoff für den Abend.</p></div>
-          <div class="occ"><b>Firmen- &amp; Teamevents</b><p>Zeigt schneller als jeder Workshop, wer im Team führt und wer zuhört.</p></div>
-          <div class="occ"><b>Geburtstage</b><p>Ab 12 Jahren. Ab 18 mit eigenen Spätterminen.</p></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- FAQ -->
-<section class="block" id="faq" style="padding-top:0">
-  <div class="wrap">
-    <span class="tag mono">FAQ</span>
-    <h2 class="h2">Kurz gefragt.</h2>
-    <div class="faq">
-      <details><summary>Tut ein Treffer weh?</summary><p>Nein. Lasertag arbeitet mit einem Infrarot-Signal. Es wird nichts verschossen, es gibt keine blauen Flecken und keine Farbe auf der Kleidung. Der Sensor registriert den Treffer, das ist alles.</p></details>
-      <details><summary>Ab welchem Alter kann man mitspielen?</summary><p>Ab 12 Jahren. Die Open Night ist ab 18.</p></details>
-      <details><summary>Was ziehe ich an?</summary><p>Wir spielen draußen. Kleidung, die dreckig werden darf, und feste Schuhe. Bei Kälte lieber eine Schicht mehr, die Ausrüstung passt drüber.</p></details>
-      <details><summary>Wie bezahle ich?</summary><p>Vor Ort, bar oder mit Karte. Rabatte für Schüler, Studierende und mit Schwerbehindertenausweis gibt es gegen Vorlage des Ausweises.</p></details>
-      <details><summary>Ist die Anfrage verbindlich?</summary><p>Nein. Du schickst eine unverbindliche Anfrage, wir melden uns mit einer Bestätigung oder einem Alternativtermin.</p></details>
-      <details><summary>Kommt ihr auch zu uns?</summary><p>Ja. Wir bringen Ausrüstung und Spielleitung mit und bauen die Arena auf eurem Gelände auf. Schreib uns, wie groß die Fläche ist und wie viele Leute spielen.</p></details>
-    </div>
-  </div>
-</section>
-
-<!-- BOOKING -->
-<section class="block book" id="buchen">
-  <div class="wrap">
-    <span class="tag mono">Buchen</span>
-    <h2 class="h2">Termin, Gruppengröße, los.</h2>
-    <p class="intro">Die Anfrage dauert eine Minute und ist unverbindlich. Wir melden uns mit einer Bestätigung.</p>
-    <div class="book-grid">
-      <form id="book-form" novalidate>
-        <div class="field"><label class="mono" for="f-date">Datum</label><input type="date" id="f-date" required></div>
-        <div class="field"><label class="mono" for="f-players">Spieler</label><input type="number" id="f-players" min="6" max="24" value="12" inputmode="numeric"></div>
-        <div class="field"><label class="mono" for="f-hours">Dauer</label>
-          <select id="f-hours"><option value="1">1 Stunde</option><option value="2">2 Stunden</option><option value="3">3 Stunden</option></select></div>
-        <div class="field"><label class="mono" for="f-occ">Anlass</label>
-          <select id="f-occ"><option>Crew / Freunde</option><option>Geburtstag</option><option>Junggesellenabschied</option><option>Firmen- / Teamevent</option><option>Sonstiges</option></select></div>
-        <div class="field"><label class="mono" for="f-name">Name</label><input type="text" id="f-name" autocomplete="name" placeholder="Vor- und Nachname"></div>
-        <div class="field"><label class="mono" for="f-contact">Telefon oder E-Mail</label><input type="text" id="f-contact" autocomplete="email" placeholder="So erreichen wir dich"></div>
-        <button class="btn btn-cyan" type="submit">Anfrage erstellen</button>
-        <div class="result" id="result" hidden>
-          <span class="mono" style="color:var(--cyan)">Deine Anfrage</span>
-          <pre id="result-text"></pre>
-          <div class="row">
-            <button type="button" class="small-btn" id="copy-req">Text kopieren</button>
-            <a class="small-btn" id="mail-req" href="mailto:info@shootex.eu">Per E-Mail senden</a>
+  <!-- PRICES -->
+  <section class="block" id="preise">
+    <div class="wrap">
+      <p class="eyebrow">Preise</p>
+      <h2>Pro Kopf, pro Stunde. <em>Bezahlt wird vor Ort.</em></h2>
+      <div class="price-grid">
+        <div>
+          <div class="tiers">
+            <div class="tier"><b>12–17 Spieler</b><span>z. B. 12 Spieler, 1 Stunde: 210,00 €</span><div class="p">17,50 €<small>pro Person / Std.</small></div></div>
+            <div class="tier"><b>18–24 Spieler</b><span>z. B. 18 Spieler, 1 Stunde: 297,00 €</span><div class="p">16,50 €<small>pro Person / Std.</small></div></div>
+            <div class="tier tier-y"><b>Open Night</b><span>Einzelticket, 2 Stunden, gemischte Teams</span><div class="p">25 €<small>pro Ticket</small></div></div>
+          </div>
+          <div class="fine">
+            <span>Mindestbuchung 1 Stunde. Ab der 3. Stunde gibt es Rabatt.</span>
+            <span>10 % für Schüler, Studierende und mit Schwerbehindertenausweis. Ausweis bitte vor Ort zeigen.</span>
+            <span>Bezahlung vor Ort, bar oder mit Karte.</span>
           </div>
         </div>
-      </form>
-      <div class="contact">
-        <div class="item"><span class="mono">Telefon / WhatsApp</span><b>0152 53 65 03 99</b><div class="row"><button type="button" class="small-btn" data-copy="0152 53 65 03 99">Kopieren</button></div></div>
-        <div class="item"><span class="mono">E-Mail</span><b>info@shootex.eu</b><div class="row"><button type="button" class="small-btn" data-copy="info@shootex.eu">Kopieren</button></div></div>
-        <div class="item"><span class="mono">Adresse</span><b>Turmstraße 36<br>89195 Staig bei Ulm</b></div>
-        <div class="item"><span class="mono">Öffnungszeiten</span><b>Freitag &amp; Sonntag, 11–21 Uhr<br>Andere Tage nach Absprache</b></div>
+        <div class="calc" aria-label="Preisrechner">
+          <span class="label">Rechner</span>
+          <div>
+            <label for="players" class="row-label">Spieler <output id="players-out">12</output></label>
+            <input type="range" id="players" min="6" max="24" value="12">
+          </div>
+          <div>
+            <span class="row-label" id="hours-label">Dauer</span>
+            <div class="seg" role="group" aria-labelledby="hours-label">
+              <button type="button" data-h="1" aria-pressed="true">1 Std.</button>
+              <button type="button" data-h="2" aria-pressed="false">2 Std.</button>
+              <button type="button" data-h="3" aria-pressed="false">3 Std.</button>
+            </div>
+          </div>
+          <label class="check" for="discount"><input type="checkbox" id="discount"> Schüler, Studis, Schwerbehindertenausweis (−10 %)</label>
+          <div class="total" aria-live="polite">
+            <span class="row-label" id="sum-label">Gesamt</span>
+            <div class="sum" id="sum">210,00 €</div>
+            <div class="per" id="per">17,50 € pro Person und Stunde</div>
+            <div class="hint-y" id="hint" hidden></div>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
+
+  <!-- CUP -->
+  <section class="block" id="cup">
+    <div class="wrap">
+      <p class="eyebrow">Shootex Cup</p>
+      <h2>Für alle, denen ein lustiger Abend <em>nicht reicht.</em></h2>
+      <p class="intro">Der Shootex Cup ist die Turnierserie mit offizieller Rangliste. Feste Teams, echte Finals, Livestream. Wer einmal im Finale stand, kommt meistens wieder.</p>
+      <div class="cup">
+        <div class="log">
+          <div class="entry"><span class="label">19.06.2024 · 2. Shootex Cup</span><b>The Crabs</b><p>Nach Jahren voller Rückschläge gewinnen The Crabs das Finale gegen den erfahrenen Trödeltrupp. Mit Taktik und Teamplay.</p></div>
+          <div class="entry"><span class="label">04.04.2024 · 1. Shootex Cup</span><b>All Gas No Breaks</b><p>Das erste Finale wird live gestreamt und denkbar knapp im letzten Spiel entschieden.</p></div>
+          <div class="entry"><span class="label">2024 · Newcomer Cup</span><b>Für Einsteiger</b><p>Turnierluft ohne Veteranen. Der Weg in die Rangliste für Teams, die gerade erst anfangen.</p></div>
+        </div>
+        <div>
+          <span class="label" style="display:block;margin-bottom:14px">Wer bei uns spielt</span>
+          <div class="occasions">
+            <div class="occ"><b>Crews &amp; Freunde</b><p>Der Klassiker: einmal im Monat, Revanche fest eingeplant.</p></div>
+            <div class="occ"><b>Junggesellenabschied</b><p>Ein Team gegen den Bräutigam oder die Braut. Danach habt ihr Gesprächsstoff für den Abend.</p></div>
+            <div class="occ"><b>Firmen- &amp; Teamevents</b><p>Zeigt schneller als jeder Workshop, wer im Team führt und wer zuhört.</p></div>
+            <div class="occ"><b>Geburtstage</b><p>Ab 12 Jahren. Ab 18 mit eigenen Spätterminen.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="block block-tight" id="faq">
+    <div class="wrap">
+      <p class="eyebrow">FAQ</p>
+      <h2>Kurz <em>gefragt.</em></h2>
+      <div class="faq">
+        <details><summary>Tut ein Treffer weh?</summary><p>Nein. Lasertag arbeitet mit einem Infrarot-Signal. Es wird nichts verschossen, es gibt keine blauen Flecken und keine Farbe auf der Kleidung. Der Sensor registriert den Treffer, das ist alles.</p></details>
+        <details><summary>Ab welchem Alter kann man mitspielen?</summary><p>Ab 12 Jahren. Die Open Night ist ab 18.</p></details>
+        <details><summary>Was ziehe ich an?</summary><p>Wir spielen draußen. Kleidung, die dreckig werden darf, und feste Schuhe. Bei Kälte lieber eine Schicht mehr, die Ausrüstung passt drüber.</p></details>
+        <details><summary>Wie bezahle ich?</summary><p>Vor Ort, bar oder mit Karte. Rabatte für Schüler, Studierende und mit Schwerbehindertenausweis gibt es gegen Vorlage des Ausweises.</p></details>
+        <details><summary>Ist die Anfrage verbindlich?</summary><p>Nein. Du schickst eine unverbindliche Anfrage, wir melden uns mit einer Bestätigung oder einem Alternativtermin.</p></details>
+        <details><summary>Kommt ihr auch zu uns?</summary><p>Ja. Wir bringen Ausrüstung und Spielleitung mit und bauen die Arena auf eurem Gelände auf. Schreib uns, wie groß die Fläche ist und wie viele Leute spielen.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOOKING -->
+  <section class="block book" id="buchen">
+    <div class="wrap">
+      <p class="eyebrow">Buchen</p>
+      <h2>Termin, Gruppengröße, <em>los.</em></h2>
+      <p class="intro">Die Anfrage dauert eine Minute und ist unverbindlich. Wir melden uns mit einer Bestätigung.</p>
+      <div class="book-grid">
+        <form id="book-form" novalidate>
+          <div class="field"><label for="f-date">Datum</label><input type="date" id="f-date" required></div>
+          <div class="field"><label for="f-players">Spieler</label><input type="number" id="f-players" min="6" max="24" value="12" inputmode="numeric"></div>
+          <div class="field"><label for="f-hours">Dauer</label>
+            <select id="f-hours"><option value="1">1 Stunde</option><option value="2">2 Stunden</option><option value="3">3 Stunden</option></select></div>
+          <div class="field"><label for="f-occ">Anlass</label>
+            <select id="f-occ"><option>Crew / Freunde</option><option>Geburtstag</option><option>Junggesellenabschied</option><option>Firmen- / Teamevent</option><option>Sonstiges</option></select></div>
+          <div class="field"><label for="f-name">Name</label><input type="text" id="f-name" autocomplete="name" placeholder="Vor- und Nachname"></div>
+          <div class="field"><label for="f-contact">Telefon oder E-Mail</label><input type="text" id="f-contact" autocomplete="email" placeholder="So erreichen wir dich"></div>
+          <button class="btn btn-primary" type="submit">Anfrage erstellen</button>
+          <div class="result" id="result" hidden>
+            <span class="label">Deine Anfrage</span>
+            <pre id="result-text"></pre>
+            <div class="row">
+              <button type="button" class="small-btn" id="copy-req">Text kopieren</button>
+              <a class="small-btn" id="mail-req" href="mailto:info@shootex.eu">Per E-Mail senden</a>
+            </div>
+          </div>
+        </form>
+        <div class="contact">
+          <div class="item"><span class="label">Telefon / WhatsApp</span><b>0152 53 65 03 99</b><div class="row"><button type="button" class="small-btn" data-copy="0152 53 65 03 99">Kopieren</button></div></div>
+          <div class="item"><span class="label">E-Mail</span><b>info@shootex.eu</b><div class="row"><button type="button" class="small-btn" data-copy="info@shootex.eu">Kopieren</button></div></div>
+          <div class="item"><span class="label">Adresse</span><b>Turmstraße 36<br>89195 Staig bei Ulm</b></div>
+          <div class="item"><span class="label">Öffnungszeiten</span><b>Freitag &amp; Sonntag, 11–21 Uhr<br>Andere Tage nach Absprache</b></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
 
 <footer>
   <div class="wrap">
-    <span class="brand">SHOOTEX</span>
-    <span class="mono">Outdoor-Lasertag · Turmstraße 36 · 89195 Staig</span>
-    <span class="mono">Redesign-Entwurf 2026 · Open Night ist ein Konzeptvorschlag</span>
+    <span class="logo">SHOOTEX<span>.</span></span>
+    <span>Outdoor-Lasertag · Turmstraße 36 · 89195 Staig</span>
+    <span>Redesign-Entwurf 2026 · Open Night ist ein Konzeptvorschlag</span>
   </div>
 </footer>
 
 <div class="toast" id="toast" role="status"></div>
 
-<script>
-(() => {
-  'use strict';
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const eur = n => n.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' €';
-  const toastEl = document.getElementById('toast');
-  let toastTimer;
-  function toast(msg){
-    toastEl.textContent = msg; toastEl.classList.add('show');
-    clearTimeout(toastTimer); toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2800);
-  }
-  async function copy(text, btn){
-    try { await navigator.clipboard.writeText(text); toast('Kopiert: ' + text.split('\n')[0]); }
-    catch(e){
-      const r = document.createRange(); const target = btn.closest('.item, .result').querySelector('b, pre');
-      r.selectNodeContents(target); const s = getSelection(); s.removeAllRanges(); s.addRange(r);
-      toast('Markiert. Mit Strg+C kopieren.');
-    }
-  }
-  document.querySelectorAll('[data-copy]').forEach(b => b.addEventListener('click', () => copy(b.dataset.copy, b)));
-
-  /* =========================================================
-     HERO: nocturnal arena. Players hide behind cover; only
-     their vest sensors glow. Infrared beams cut through fog.
-     ========================================================= */
-  const cv = document.getElementById('arena');
-  const ctx = cv.getContext('2d');
-  const C = {c:[63,243,255], m:[255,61,187]};
-  const rgba = (c,a) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
-  let W=0, H=0, DPR=1, groundY=0;
-  let stars=[], hills=[], buildings=[], covers=[], players=[], fog=[], beams=[], sparks=[], rings=[];
-  let mx=0, my=0, tmx=0, tmy=0;
-  const score = {c:0, m:0};
-  const MODES = ['Herrschaft','Team Deathmatch','Suchen & Zerstören','Capture the Flag'];
-  let round = 1, roundStart = 0, nextShot = 0;
-  const ROUND_LEN = 600; // seconds, shown as 10:00
-  const hud = {c:document.getElementById('hud-c'), m:document.getElementById('hud-m'), t:document.getElementById('hud-time'), r:document.getElementById('hud-round'), mode:document.getElementById('hud-mode')};
-
-  // seeded random so the skyline is stable across resizes
-  let seed = 7;
-  const rnd = () => (seed = (seed * 16807) % 2147483647, (seed - 1) / 2147483646);
-
-  function build(){
-    seed = 7;
-    groundY = H * 0.76;
-    const narrow = W < 700;
-    stars = Array.from({length: Math.round(W*H/7000)}, () => ({x:rnd()*W, y:rnd()*groundY*0.75, r:rnd()*1.1+.2, p:rnd()*6.28, s:.5+rnd()*1.5}));
-    // far tree line
-    hills = []; let y = groundY - H*0.10;
-    for (let x=-60; x<=W+60; x+=14){ y += (rnd()-.5)*10; y = Math.max(groundY-H*0.16, Math.min(groundY-H*0.05, y)); hills.push([x, y - (rnd()<.25 ? rnd()*14 : 0)]); }
-    // farmstead silhouettes (mid layer)
-    const bh = H*0.17;
-    buildings = [
-      {type:'barn',  x:W*(narrow?.02:.08), w:W*(narrow?.42:.26), h:bh},
-      {type:'shed',  x:W*(narrow?.40:.36), w:W*(narrow?.18:.11), h:bh*.55},
-      {type:'tower', x:W*(narrow?.62:.58), w:Math.max(34,W*.045), h:H*.40},
-      {type:'silo',  x:W*(narrow?.80:.74), w:Math.max(30,W*.04), h:bh*1.35},
-      {type:'shed',  x:W*(narrow?.88:.82), w:W*.14, h:bh*.7}
-    ];
-    // cover objects in the play zone (near layer)
-    covers = []; players = [];
-    const n = narrow ? 8 : 12;
-    for (let i=0;i<n;i++){
-      const band = (i + .5) / n;
-      const x = band * W + (rnd()-.5) * (W/n) * .5;
-      const depth = rnd();                     // 0 = far (higher), 1 = near (lower, bigger)
-      const base = groundY + 6 + depth * (H - groundY - 18);
-      const s = narrow ? .7 + depth * .8 : .95 + depth * 1.15;
-      const kind = ['pallets','barrels','wall','tyres'][Math.floor(rnd()*4)];
-      const w = (kind==='wall'? 90 : kind==='pallets' ? 70 : 54) * s * (narrow?.75:1);
-      const h = (kind==='wall'? 46 : kind==='pallets' ? 38 : 34) * s * (narrow?.85:1);
-      const team = x < W/2 ? 'c' : 'm';
-      const cov = {x: x - w/2, y: base - h, w, h, kind, team, depth};
-      covers.push(cov);
-      players.push({cov, team, ox: w*(.25 + rnd()*.5), oy: -3 - rnd()*4, down:0, blink: rnd()*6.28, hits:0});
-    }
-    covers.sort((a,b) => a.depth - b.depth);
-    fog = Array.from({length: 9}, (_,i) => ({x: rnd()*W, y: groundY - H*.06 + rnd()*H*.18, r: W*(.18 + rnd()*.2), v: (rnd()*.5+.2) * (i%2?1:-1), a: .05 + rnd()*.05}));
-  }
-
-  function resize(){
-    DPR = Math.min(window.devicePixelRatio || 1, 2);
-    const r = cv.getBoundingClientRect();
-    W = r.width; H = r.height;
-    cv.width = Math.round(W*DPR); cv.height = Math.round(H*DPR);
-    ctx.setTransform(DPR,0,0,DPR,0,0);
-    build();
-    if (reduce) staticFrame();
-  }
-
-  const P = p => ({x: p.cov.x + p.ox + mx*(8 + p.cov.depth*22), y: p.cov.y + p.oy + my*4});
-
-  function shoot(now){
-    const live = players.filter(p => p.down < now);
-    const shooters = live.filter(p => Math.random() < .5);
-    const from = (shooters.length ? shooters : live)[Math.floor(Math.random() * (shooters.length || live.length))];
-    if (!from) return;
-    const targets = live.filter(p => p.team !== from.team);
-    if (!targets.length) return;
-    const to = targets[Math.floor(Math.random()*targets.length)];
-    const hit = Math.random() < .42;
-    beams.push({from, to, t0: now, hit, jx: hit ? 0 : (Math.random()-.5)*90, jy: hit ? 0 : -10 - Math.random()*40, done:false});
-  }
-
-  function burst(x, y, col, n, now){
-    for (let i=0;i<n;i++){
-      const a = Math.random()*Math.PI*2, v = 40 + Math.random()*160;
-      sparks.push({x, y, vx: Math.cos(a)*v, vy: Math.sin(a)*v - 40, t0: now, life: .35 + Math.random()*.35, col});
-    }
-  }
-
-  function pad(n){ return String(n).padStart(2,'0'); }
-
-  function updateHud(now){
-    const el = Math.max(0, ROUND_LEN - Math.floor((now - roundStart) * 8)); // fast-forward clock x8
-    hud.t.textContent = pad(Math.floor(el/60)) + ':' + pad(el%60);
-    if (el === 0){
-      round++; roundStart = now; score.c = 0; score.m = 0;
-      hud.r.textContent = 'Runde ' + pad(round);
-      hud.mode.textContent = 'Modus: ' + MODES[(round-1) % MODES.length];
-    }
-    hud.c.textContent = pad(score.c); hud.m.textContent = pad(score.m);
-  }
-
-  function drawSky(now){
-    const g = ctx.createLinearGradient(0,0,0,groundY);
-    g.addColorStop(0,'#05031a'); g.addColorStop(.55,'#120b33'); g.addColorStop(.9,'#2b1048'); g.addColorStop(1,'#3c1452');
-    ctx.fillStyle = g; ctx.fillRect(0,0,W,groundY+2);
-    // horizon glow from the arena
-    const hg = ctx.createRadialGradient(W*.5, groundY, 10, W*.5, groundY, W*.7);
-    hg.addColorStop(0,'rgba(255,61,187,.20)'); hg.addColorStop(.5,'rgba(120,40,200,.08)'); hg.addColorStop(1,'rgba(0,0,0,0)');
-    ctx.fillStyle = hg; ctx.fillRect(0,0,W,groundY);
-    for (const s of stars){
-      const a = .35 + .35*Math.sin(now*s.s + s.p);
-      ctx.fillStyle = `rgba(236,233,255,${a})`;
-      ctx.fillRect(s.x + mx*2, s.y, s.r, s.r);
-    }
-  }
-
-  function drawSearchlight(now, tower){
-    const ox = tower.x + tower.w/2 + mx*12, oy = groundY - tower.h + 8;
-    const ang = Math.PI/2 + Math.sin(now*.22)*.95;
-    const len = W*1.1, spread = .09;
-    ctx.save(); ctx.globalCompositeOperation = 'lighter';
-    const g = ctx.createRadialGradient(ox,oy,0,ox,oy,len);
-    g.addColorStop(0,'rgba(255,214,150,.20)'); g.addColorStop(.4,'rgba(255,190,120,.05)'); g.addColorStop(1,'rgba(0,0,0,0)');
-    ctx.fillStyle = g;
-    ctx.beginPath(); ctx.moveTo(ox,oy);
-    ctx.lineTo(ox + Math.cos(ang-spread)*len, oy + Math.sin(ang-spread)*len);
-    ctx.lineTo(ox + Math.cos(ang+spread)*len, oy + Math.sin(ang+spread)*len);
-    ctx.closePath(); ctx.fill();
-    ctx.fillStyle = 'rgba(255,220,170,.9)'; ctx.beginPath(); ctx.arc(ox,oy,2.4,0,7); ctx.fill();
-    ctx.restore();
-  }
-
-  function rim(path, col){
-    ctx.save(); ctx.globalCompositeOperation='lighter';
-    ctx.strokeStyle = rgba(col,.10); ctx.lineWidth = 5; ctx.stroke(path);
-    ctx.strokeStyle = rgba(col,.55); ctx.lineWidth = 1; ctx.stroke(path);
-    ctx.restore();
-  }
-
-  function drawBuildings(now){
-    const off = mx*12;
-    // tree line
-    ctx.fillStyle = '#0c0820';
-    ctx.beginPath(); ctx.moveTo(-60+mx*5, groundY);
-    for (const [x,y] of hills) ctx.lineTo(x+mx*5, y);
-    ctx.lineTo(W+60, groundY); ctx.closePath(); ctx.fill();
-
-    for (const b of buildings){
-      const x = b.x + off, top = groundY - b.h;
-      const p = new Path2D(); const edge = new Path2D();
-      if (b.type==='barn'){
-        const eave = top + b.h*.38;
-        p.moveTo(x, groundY); p.lineTo(x, eave); p.lineTo(x+b.w*.5, top); p.lineTo(x+b.w, eave); p.lineTo(x+b.w, groundY); p.closePath();
-        edge.moveTo(x, eave); edge.lineTo(x+b.w*.5, top); edge.lineTo(x+b.w, eave);
-      } else if (b.type==='shed'){
-        p.moveTo(x, groundY); p.lineTo(x, top+b.h*.2); p.lineTo(x+b.w, top); p.lineTo(x+b.w, groundY); p.closePath();
-        edge.moveTo(x, top+b.h*.2); edge.lineTo(x+b.w, top);
-      } else if (b.type==='tower'){
-        const sp = b.h*.28, bt = top + sp;
-        p.moveTo(x, groundY); p.lineTo(x, bt); p.lineTo(x+b.w/2, top); p.lineTo(x+b.w, bt); p.lineTo(x+b.w, groundY); p.closePath();
-        edge.moveTo(x, bt); edge.lineTo(x+b.w/2, top); edge.lineTo(x+b.w, bt);
-        // cross-less spire tip
-        edge.moveTo(x+b.w/2, top); edge.lineTo(x+b.w/2, top-10);
-      } else if (b.type==='silo'){
-        const r = b.w/2, dy = top + r;
-        p.moveTo(x, groundY); p.lineTo(x, dy); p.arc(x+r, dy, r, Math.PI, 0); p.lineTo(x+b.w, groundY); p.closePath();
-        edge.moveTo(x, dy); edge.arc(x+r, dy, r, Math.PI, 0);
-      }
-      ctx.fillStyle = '#0e0a26'; ctx.fill(p);
-      rim(edge, b.x + b.w/2 < W/2 ? C.c : C.m);
-    }
-    // sodium-lit windows
-    const barn = buildings[0];
-    ctx.fillStyle = 'rgba(255,181,71,.85)';
-    ctx.shadowColor = 'rgba(255,181,71,.9)'; ctx.shadowBlur = 10;
-    const flick = .85 + .15*Math.sin(now*9)*Math.sin(now*2.3);
-    ctx.globalAlpha = flick;
-    ctx.fillRect(barn.x + off + barn.w*.47, groundY - barn.h*.45, barn.w*.06, barn.h*.12);
-    const tw = buildings[2];
-    ctx.fillRect(tw.x + off + tw.w*.38, groundY - tw.h*.55, tw.w*.24, tw.h*.06);
-    ctx.globalAlpha = 1; ctx.shadowBlur = 0;
-  }
-
-  function drawFog(now, front){
-    ctx.save(); ctx.globalCompositeOperation = 'lighter';
-    for (const f of fog){
-      const x = ((f.x + now*f.v*18) % (W + f.r*2) + (W + f.r*2)) % (W + f.r*2) - f.r;
-      const g = ctx.createRadialGradient(x, f.y, 0, x, f.y, f.r);
-      const a = front ? f.a*.45 : f.a;
-      g.addColorStop(0, `rgba(150,110,230,${a})`); g.addColorStop(1,'rgba(0,0,0,0)');
-      ctx.fillStyle = g; ctx.fillRect(x-f.r, f.y-f.r, f.r*2, f.r*2);
-    }
-    ctx.restore();
-  }
-
-  function drawGround(){
-    const g = ctx.createLinearGradient(0,groundY,0,H);
-    g.addColorStop(0,'#140c2c'); g.addColorStop(1,'#06040f');
-    ctx.fillStyle = g; ctx.fillRect(0, groundY, W, H-groundY);
-  }
-
-  function drawCovers(){
-    for (const c of covers){
-      const off = mx*(8 + c.depth*22);
-      const x = c.x + off, y = c.y, w = c.w, h = c.h;
-      const col = C[c.team];
-      ctx.fillStyle = '#07051a';
-      const p = new Path2D(), e = new Path2D();
-      if (c.kind==='barrels'){
-        const bw = w/2 - 2;
-        p.roundRect(x, y+h*.1, bw, h*.9, 4); p.roundRect(x+bw+4, y, bw, h, 4);
-        e.moveTo(x+3, y+h*.1); e.lineTo(x+bw-3, y+h*.1); e.moveTo(x+bw+7, y); e.lineTo(x+w-3, y);
-      } else if (c.kind==='tyres'){
-        p.roundRect(x, y+h*.45, w, h*.55, h*.25); p.roundRect(x+w*.15, y, w*.7, h*.5, h*.22);
-        e.moveTo(x+w*.2, y); e.lineTo(x+w*.8, y);
-      } else {
-        p.rect(x, y, w, h);
-        e.moveTo(x, y); e.lineTo(x+w, y);
-        if (c.kind==='pallets'){ for (let k=1;k<4;k++){ e.moveTo(x, y + h*k/4); e.lineTo(x+w, y + h*k/4); } }
-      }
-      ctx.fill(p);
-      ctx.save(); ctx.globalCompositeOperation='lighter';
-      ctx.strokeStyle = rgba(col, .22 + c.depth*.18); ctx.lineWidth = 1; ctx.stroke(e);
-      ctx.restore();
-    }
-  }
-
-  function drawPlayers(now){
-    ctx.save(); ctx.globalCompositeOperation='lighter';
-    for (const p of players){
-      const {x,y} = P(p);
-      const col = C[p.team];
-      if (p.down > now){
-        // sensor flashes white then goes dark until respawn
-        const k = (p.down - now);
-        if (k > 1.9){ ctx.fillStyle = `rgba(255,255,255,${(k-1.9)*8})`; ctx.beginPath(); ctx.arc(x,y,5,0,7); ctx.fill(); }
-        else if (Math.sin(now*20) > .6){ ctx.fillStyle = rgba(col,.25); ctx.fillRect(x-1.5,y-1.5,3,3); }
-        continue;
-      }
-      const a = .65 + .35*Math.sin(now*3 + p.blink);
-      const g = ctx.createRadialGradient(x,y,0,x,y,14);
-      g.addColorStop(0, rgba(col,.55*a)); g.addColorStop(1, rgba(col,0));
-      ctx.fillStyle = g; ctx.fillRect(x-14,y-14,28,28);
-      ctx.fillStyle = rgba([255,255,255], .9*a); ctx.fillRect(x-1.2,y-1.2,2.4,2.4);
-      ctx.fillStyle = rgba(col, .9); ctx.fillRect(x+4,y-1,2,2); ctx.fillRect(x-6,y-1,2,2);
-    }
-    ctx.restore();
-  }
-
-  function drawBeams(now){
-    ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.lineCap='round';
-    for (const b of beams){
-      const a = P(b.from), t = P(b.to);
-      const tx = t.x + b.jx, ty = t.y + b.jy;
-      const dist = Math.hypot(tx-a.x, ty-a.y);
-      const travel = dist / 2600;
-      const age = now - b.t0;
-      const prog = Math.min(1, age / travel);
-      if (prog >= 1 && !b.done){
-        b.done = true;
-        if (b.hit && b.to.down < now){
-          b.to.down = now + 2.2; score[b.from.team]++;
-          burst(tx, ty, C[b.from.team], 22, now); rings.push({x:tx,y:ty,t0:now,col:C[b.from.team]});
-        } else burst(tx, ty, C[b.from.team], 6, now);
-      }
-      const fade = prog < 1 ? 1 : Math.max(0, 1 - (age - travel) / .38);
-      if (fade <= 0) continue;
-      const tail = prog < 1 ? 0 : Math.min(1, (age - travel) / .38);
-      const sx = a.x + (tx-a.x)*tail*.85, sy = a.y + (ty-a.y)*tail*.85;
-      const hx = a.x + (tx-a.x)*prog,      hy = a.y + (ty-a.y)*prog;
-      const col = C[b.from.team];
-      for (const [w,al] of [[12,.06],[5,.22],[1.6,.95]]){
-        ctx.strokeStyle = al > .5 ? `rgba(${Math.min(255,col[0]+120)},${Math.min(255,col[1]+120)},${Math.min(255,col[2]+120)},${al*fade})` : rgba(col, al*fade);
-        ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(sx,sy); ctx.lineTo(hx,hy); ctx.stroke();
-      }
-      // emitter glow
-      if (age < .12){ const g = ctx.createRadialGradient(a.x,a.y,0,a.x,a.y,22); g.addColorStop(0, rgba(col,.8)); g.addColorStop(1, rgba(col,0)); ctx.fillStyle=g; ctx.fillRect(a.x-22,a.y-22,44,44); }
-    }
-    beams = beams.filter(b => now - b.t0 < 2);
-    for (const s of sparks){
-      const k = (now - s.t0) / s.life; if (k >= 1) continue;
-      const dt = now - s.t0;
-      const x = s.x + s.vx*dt, y = s.y + s.vy*dt + 220*dt*dt;
-      ctx.strokeStyle = rgba(s.col, 1-k); ctx.lineWidth = 1.2;
-      ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x - s.vx*.02, y - (s.vy + 440*dt)*.02); ctx.stroke();
-    }
-    sparks = sparks.filter(s => now - s.t0 < s.life);
-    for (const r of rings){
-      const k = (now - r.t0) / .6; if (k >= 1) continue;
-      ctx.strokeStyle = rgba(r.col, .8*(1-k)); ctx.lineWidth = 1.5;
-      ctx.beginPath(); ctx.ellipse(r.x, r.y, 6 + k*34, 3 + k*12, 0, 0, 7); ctx.stroke();
-    }
-    rings = rings.filter(r => now - r.t0 < .6);
-    ctx.restore();
-  }
-
-  function vignette(){
-    const g = ctx.createRadialGradient(W*.5,H*.55,H*.2,W*.5,H*.55,Math.max(W,H)*.8);
-    g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(1,'rgba(4,2,12,.75)');
-    ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
-    // left-side scrim so the headline stays readable over the action
-    const s = ctx.createLinearGradient(0,0,W*(W<700?1:.6),0);
-    s.addColorStop(0,'rgba(8,6,22,.72)'); s.addColorStop(1,'rgba(8,6,22,0)');
-    ctx.fillStyle = s; ctx.fillRect(0,0,W,H);
-  }
-
-  function frame(now){
-    ctx.clearRect(0,0,W,H);
-    drawSky(now);
-    drawSearchlight(now, buildings[2]);
-    drawBuildings(now);
-    drawFog(now, false);
-    drawGround();
-    drawCovers();
-    drawPlayers(now);
-    drawBeams(now);
-    drawFog(now, true);
-    vignette();
-  }
-
-  let running = false, visible = true, raf = 0;
-  function loop(ms){
-    const now = ms/1000;
-    if (!roundStart) roundStart = now;
-    mx += (tmx - mx) * .05; my += (tmy - my) * .05;
-    if (now > nextShot){ shoot(now); if (Math.random() < .25) shoot(now); nextShot = now + .18 + Math.random()*.55; }
-    frame(now); updateHud(now);
-    raf = requestAnimationFrame(loop);
-  }
-  function start(){ if (!running && visible && !document.hidden){ running = true; raf = requestAnimationFrame(loop); } }
-  function stop(){ running = false; cancelAnimationFrame(raf); }
-
-  function staticFrame(){
-    const now = 10;
-    beams = []; sparks = []; rings = [];
-    const c = players.filter(p => p.team==='c'), m = players.filter(p => p.team==='m');
-    for (let i=0;i<3;i++){
-      const from = i%2 ? m[i % m.length] : c[i % c.length], to = i%2 ? c[(i+1) % c.length] : m[(i+2) % m.length];
-      if (from && to) beams.push({from, to, t0: now - .05 - i*.03, hit:false, jx:0, jy:0, done:true});
-    }
-    frame(now);
-    score.c = 7; score.m = 5; hud.c.textContent = '07'; hud.m.textContent = '05'; hud.t.textContent = '06:42';
-  }
-
-  window.addEventListener('resize', () => { clearTimeout(resize.t); resize.t = setTimeout(resize, 120); });
-  resize();
-  if (!reduce){
-    window.addEventListener('pointermove', e => { tmx = (e.clientX / innerWidth - .5) * 2; tmy = (e.clientY / innerHeight - .5) * 2; }, {passive:true});
-    new IntersectionObserver(([en]) => { visible = en.isIntersecting; visible ? start() : stop(); }).observe(cv);
-    document.addEventListener('visibilitychange', () => document.hidden ? stop() : start());
-    start();
-  }
-
-  /* =========================================================
-     OPEN NIGHT: simulated upcoming nights (Fridays)
-     ========================================================= */
-  const CAP = 20, MIN = 10;
-  const fills = [17, 11, 6, 2];
-  const days = ['So','Mo','Di','Mi','Do','Fr','Sa'];
-  const nightsEl = document.getElementById('nights');
-  const d0 = new Date(); d0.setHours(12,0,0,0);
-  const toFri = (5 - d0.getDay() + 7) % 7 || 7;
-  const nights = fills.map((f,i) => { const d = new Date(d0); d.setDate(d0.getDate() + toFri + i*7); return {d, f, mine:false}; });
-  function renderNights(){
-    nightsEl.innerHTML = '';
-    nights.forEach((n,i) => {
-      const left = MIN - n.f;
-      const status = n.f >= CAP ? 'Ausgebucht' : left <= 0 ? `Findet statt · noch ${CAP - n.f} Plätze` : `Noch ${left} bis zur Spielgarantie`;
-      const el = document.createElement('div'); el.className = 'night';
-      el.innerHTML = `<div class="d tnum">${pad(n.d.getDate())}.${pad(n.d.getMonth()+1)}.<small>${days[n.d.getDay()]} · 19 Uhr</small></div>
-        <div class="bar" role="img" aria-label="${n.f} von ${CAP} Plätzen vergeben"><i style="width:${n.f/CAP*100}%"></i><span class="min" style="left:${MIN/CAP*100}%"></span></div>
-        <div class="status mono tnum ${left<=0?'go':''}">${n.f}/${CAP} · ${status}</div>
-        <button type="button" ${n.mine||n.f>=CAP?'disabled':''} data-i="${i}">${n.mine?'Dein Platz ✓':'Platz sichern'}</button>`;
-      nightsEl.appendChild(el);
-    });
-  }
-  nightsEl.addEventListener('click', e => {
-    const b = e.target.closest('button[data-i]'); if (!b) return;
-    const n = nights[+b.dataset.i]; n.f++; n.mine = true; renderNights();
-    toast(n.f === MIN ? 'Spielgarantie erreicht. Diese Open Night findet statt.' : 'Konzept-Demo: Hier würde die Ticketbuchung starten.');
-  });
-  renderNights();
-
-  /* =========================================================
-     PRICE CALCULATOR (prices as published by Shootex)
-     ========================================================= */
-  const pl = document.getElementById('players'), plOut = document.getElementById('players-out');
-  const disc = document.getElementById('discount');
-  const segBtns = document.querySelectorAll('.seg button');
-  let hours = 1;
-  function calc(){
-    const n = +pl.value; plOut.textContent = n;
-    const sum = document.getElementById('sum'), per = document.getElementById('per'), hint = document.getElementById('hint'), lbl = document.getElementById('sum-label');
-    hint.hidden = true;
-    if (n < 12){
-      lbl.textContent = 'Gesamt';
-      sum.textContent = 'Auf Anfrage';
-      per.textContent = 'Für Gruppen unter 12 Spielern';
-      hint.textContent = 'Tipp: Mit „Lobby öffnen“ oder über die Open Night füllt ihr eure Runde auf.'; hint.hidden = false;
-      return;
-    }
-    const rate = n >= 18 ? 16.5 : 17.5;
-    const f = disc.checked ? .9 : 1;
-    const total = rate * n * hours * f;
-    lbl.textContent = hours === 3 ? 'Gesamt, höchstens' : 'Gesamt';
-    sum.textContent = eur(total);
-    per.textContent = eur(rate*f) + ' pro Person und Stunde' + (hours > 1 ? ' · ' + eur(total/n) + ' pro Person gesamt' : '');
-    if (hours === 3){ hint.textContent = 'Ab der 3. Stunde gibt es Rabatt. Den genauen Preis bekommst du mit der Bestätigung.'; hint.hidden = false; }
-  }
-  pl.addEventListener('input', calc); disc.addEventListener('change', calc);
-  segBtns.forEach(b => b.addEventListener('click', () => { hours = +b.dataset.h; segBtns.forEach(x => x.setAttribute('aria-pressed', x === b)); calc(); }));
-  calc();
-
-  /* =========================================================
-     BOOKING REQUEST
-     ========================================================= */
-  const form = document.getElementById('book-form');
-  const fDate = document.getElementById('f-date');
-  const iso = d => d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
-  fDate.min = iso(new Date());
-  const nf = new Date(d0); nf.setDate(d0.getDate() + toFri); fDate.value = iso(nf);
-  form.addEventListener('submit', e => {
-    e.preventDefault();
-    const v = id => document.getElementById(id).value.trim();
-    const d = v('f-date') ? new Date(v('f-date') + 'T12:00') : null;
-    const text = [
-      'Hallo Shootex-Team,',
-      '',
-      'ich möchte eine Runde Lasertag anfragen:',
-      `Datum: ${d ? d.toLocaleDateString('de-DE',{weekday:'long', day:'2-digit', month:'2-digit', year:'numeric'}) : 'flexibel'}`,
-      `Spieler: ${v('f-players') || '?'}`,
-      `Dauer: ${v('f-hours')} Std.`,
-      `Anlass: ${v('f-occ')}`,
-      '',
-      `Name: ${v('f-name') || '–'}`,
-      `Kontakt: ${v('f-contact') || '–'}`
-    ].join('\n');
-    document.getElementById('result-text').textContent = text;
-    document.getElementById('mail-req').href = 'mailto:info@shootex.eu?subject=' + encodeURIComponent('Lasertag-Anfrage') + '&body=' + encodeURIComponent(text);
-    document.getElementById('result').hidden = false;
-    toast('Anfrage erstellt. Jetzt per E-Mail oder WhatsApp senden.');
-  });
-  document.getElementById('copy-req').addEventListener('click', e => copy(document.getElementById('result-text').textContent, e.currentTarget));
-})();
-</script>
+<script src="scene.js"></script>
+<script src="site.js"></script>
 </body>
 </html>
